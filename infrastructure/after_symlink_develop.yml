@@ -1,0 +1,8 @@
+- name: Composer
+  shell: "{{ ansistrano_release_path.stdout }}/bin/console d:i"
+  environment:
+    APP_ENV: dev
+- name: cleanup infrastructure files
+  file:
+    path: '{{ ansistrano_release_path.stdout }}/infrastructure'
+    state: absent

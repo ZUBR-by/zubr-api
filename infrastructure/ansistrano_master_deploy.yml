@@ -1,0 +1,15 @@
+---
+- name: Deploy last wishes app to my server
+  hosts: all
+  vars:
+    ansible_python_interpreter: '/usr/bin/python'
+    ansistrano_deploy_via: rsync
+    ansistrano_deploy_to: "/api"
+    ansistrano_allow_anonymous_stats: no
+    ansistrano_deploy_from: "{{ playbook_dir }}/../"
+    ansistrano_keep_releases: 5
+    ansistrano_after_symlink_tasks_file: "{{ playbook_dir }}/after_symlink_master.yml"
+    ansistrano_shared_paths:
+      - "config/shared"
+  roles:
+    - { role: ansistrano.deploy }

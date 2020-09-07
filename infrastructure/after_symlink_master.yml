@@ -1,0 +1,4 @@
+- name: cleanup infrastructure files
+  file:
+    path: '{{ ansistrano_release_path.stdout }}/infrastructure'
+    state: absent

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker-compose -f infrastructure/docker-compose.yml run --rm --user $(id -u) --no-deps php composer update

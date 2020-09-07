@@ -1,0 +1,8 @@
+id,is_active,mentor_id,passport_number,identifier,commission_id
+1,1,NULL,123123,123,1
+2,1,NULL,123124,124,1
+3,1,NULL,123126,124,2
+4,1,NULL,123125,121,2
+5,1,NULL,123123,122,2
+6,1,NULL,123125,123,2
+7,1,NULL,123124,126,3

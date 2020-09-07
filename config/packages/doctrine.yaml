@@ -1,0 +1,25 @@
+doctrine:
+    dbal:
+        dbname: '%env(DATABASE_NAME)%'
+        user: '%env(DATABASE_USER)%'
+        password: '%env(DATABASE_PASSWORD)%'
+        port: '%env(DATABASE_PORT)%'
+        host: '%env(DATABASE_HOST)%'
+        server_version: '10.5'
+        default_table_options:
+            collate: utf8mb4_general_ci
+    orm:
+        auto_generate_proxy_classes: true
+        naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+        auto_mapping: true
+        mappings:
+            App:
+                is_bundle: false
+                type: annotation
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
+        dql:
+            string_functions:
+                MATCH_AGAINST: App\Doctrine\MatchAgainst
+                JSON_CONTAINS: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonContains

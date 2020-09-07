@@ -1,0 +1,23 @@
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Copy ssl
+      copy:
+        src: "{{ item }}"
+        dest: "/etc/nginx/ssl/"
+        force: yes
+      with_fileglob:
+        - "nginx/prod/ssl/*.key"
+        - "nginx/prod/ssl/*.crt"
+    - name: Copy conf.d
+      copy:
+        src: "{{ item }}"
+        dest: "/etc/nginx/conf.d"
+        force: yes
+      with_fileglob:
+        - "nginx/prod/conf.d/*-*.conf"
+    - name: restart nginx
+      systemd:
+        name: nginx
+        state: reloaded

@@ -1,0 +1,44 @@
+authentication_token:
+  path: /auth
+  methods: ['POST']
+
+commission_print:
+  path: /commissions/{id}/print
+  methods: ['GET']
+  defaults:
+    _controller: App\Commission\GeneratePoster
+
+commission_print_text:
+  path: /commissions/{id}/print/text
+  methods: ['GET']
+  defaults:
+    _controller: App\Commission\GeneratePosterWithoutPhoto
+
+commission_upload:
+  path: /commission/{id}/upload
+  methods: ['POST']
+  defaults:
+    _controller: App\UploadAttachment
+
+requests:
+  path: /requests
+  methods: ['GET']
+  defaults:
+    _controller: App\HelpRequest\GetListAction
+request:
+  path: /request
+  methods: ['POST']
+  defaults:
+    _controller: App\HelpRequest\CreateRequest
+
+commission_verify:
+  path: /verification
+  methods: ['POST']
+  defaults:
+    _controller: App\HonestPeople\VerifyObserver
+
+unsubscribe:
+  path: /unsubscribe/{uid}/{hash}
+  methods: ['GET']
+  defaults:
+    _controller: App\Unsubscribe

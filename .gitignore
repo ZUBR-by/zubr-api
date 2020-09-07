@@ -1,0 +1,37 @@
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+/.env
+/infrastructure/.env
+/infrastructure/nginx/ssl
+###< symfony/framework-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+!config/jwt/
+/config/jwt/*.pem
+!config/jwt/.gitkeep
+
+!config/credentials/
+/config/credentials/*
+!config/credentials/.gitkeep
+
+!config/shared/
+/config/shared/*
+!config/shared/.gitkeep
+
+###< lexik/jwt-authentication-bundle ###
+infrastructure/hosts*
+infrastructure/*.retry
+
+!infrastructure/credentials
+/infrastructure/credentials/*
+!infrastructure/credentials/.gitkeep
+
+!local
+/local/*
+!local/.gitkeep

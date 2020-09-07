@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+docker-compose -f infrastructure/docker-compose.yml run --rm --user $(id -u) --no-deps php composer install
+docker-compose -f infrastructure/docker-compose.yml run --rm --user $(id -u) --no-deps php php bin/console database:init

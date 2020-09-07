@@ -1,0 +1,28 @@
+version: '3.4'
+
+services:
+  php:
+    build:
+      context: './../'
+      dockerfile: 'infrastructure/php/Dockerfile'
+    volumes:
+      - "../.:/app"
+    command: ["php-fpm", "--allow-to-run-as-root"]
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.15-alpine
+    depends_on:
+      - php
+    ports:
+      - "9010:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./../public:/app/public:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
