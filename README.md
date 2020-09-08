@@ -17,7 +17,7 @@
 
 ### Installation
 
-1. Clone repo:  
+1. Clone repo
     
 2. Rename .env.dist to .env file:
 
