@@ -161,13 +161,14 @@ class Member
     /**
      *
      * @var ArrayCollection
-     * @ORM\ManyToMany(targetEntity="App\Entity\Tag", mappedBy="tag")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Tag", mappedBy="members")
+     * @Groups({"member","organization"})
      */
     private $tags;
 
     public function __construct()
     {
-        $this->tags   = new ArrayCollection();
+        $this->tags = new ArrayCollection();
     }
 
     public function getFullName() : string
@@ -237,13 +238,14 @@ class Member
         return $this->workTitle;
     }
 
-     public function getTags()
-     {
-         return $this->tags;
-     }
-
-   public function hasValidPhotoURL() : bool
+    public function getTags()
     {
-        return ! empty($this->photoUrl) && (stristr($this->photoUrl, '.png') || stristr($this->photoUrl, '.jpg') || stristr($this->photoUrl, '.jpeg'));
+        return $this->tags;
+    }
+
+    public function hasValidPhotoURL() : bool
+    {
+        return ! empty($this->photoUrl) && (stristr($this->photoUrl, '.png') || stristr($this->photoUrl,
+                    '.jpg') || stristr($this->photoUrl, '.jpeg'));
     }
 }

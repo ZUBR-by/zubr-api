@@ -30,17 +30,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *    itemOperations={"get"},
  *    normalizationContext={"groups"={"public", "private"}},
  * )
- * @ApiFilter(
- *     SearchFilter::class,
- *     properties={"name":"partial","description":"partial","location": "partial"}
- * )
- * @ApiFilter(NumericFilter::class, properties={})
- * @ApiFilter(MapViewFilter::class)
- * @ApiFilter(SearchByAllFields::class)
- * @ApiFilter(
- *     OrderFilter::class,
- *     properties={"name", "description"}, arguments={"orderParameterName"="sort"}
- * )
  */
 class Tag
 {
