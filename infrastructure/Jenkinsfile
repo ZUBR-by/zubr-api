@@ -6,7 +6,7 @@ pipeline {
   stages {
     stage('Gathering env variables') {
       steps {
-        sh 'echo 2'
+        sh 'echo 3'
       }
     }
   }
