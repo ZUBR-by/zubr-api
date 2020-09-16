@@ -11,8 +11,7 @@ pipeline {
             }
         }
         steps {
-            sh 'composer help'
-            sh 'echo 1'
+            sh 'composer install -a --no-dev --no-interaction'
         }
     }
   }
