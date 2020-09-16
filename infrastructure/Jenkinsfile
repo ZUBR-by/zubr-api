@@ -1,0 +1,14 @@
+pipeline {
+  agent any
+  options {
+    disableConcurrentBuilds()
+  }
+  stages {
+    stage('Gathering env variables') {
+      steps {
+        sh 'echo 1'
+      }
+    }
+  }
+}
+
