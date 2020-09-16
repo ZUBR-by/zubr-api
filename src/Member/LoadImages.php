@@ -22,8 +22,8 @@ class LoadImages extends Command
 
     public function __construct(Connection $connection, string $projectDir, string $bucketMembers)
     {
-        $this->connection = $connection;
-        $this->projectDir = $projectDir;
+        $this->connection    = $connection;
+        $this->projectDir    = $projectDir;
         $this->bucketMembers = $bucketMembers;
 
         parent::__construct();
@@ -62,12 +62,15 @@ TAG
         ]);
         $placeholderURL = 'https://zubr.in/assets/images/user.svg';
         $guzzle         = new Client();
-        $path           = __DIR__ . '/../datasets/member-*.csv';
+        $path           = __DIR__ . '/../../datasets/member-*.csv';
+        $toReplace      = 0;
+        $notInAWS      = 0;
         foreach ($members as $member) {
             if (strpos($member['photo_url'], 'members2020by.s3.eu-north-1.amazonaws.com') !== false
                 || strpos($member['photo_url'], 'images/user.svg') !== false) {
                 continue;
             }
+            $notInAWS++;
             try {
                 $url     = $member['photo_url'];
                 $content = $guzzle->get($url, ['verify' => false])->getBody()->getContents();
@@ -90,17 +93,53 @@ TAG
                     'Body'        => file_get_contents('/tmp/' . $member['member_id']),
                     'ACL'         => 'public-read',
                 ]);
-                exec("sed -i 's+{$member['photo_url']}+{$result['ObjectURL']}+g' $path");
+                foreach ([
+                             '00_parent',
+                             '07_minsk_capital',
+                             '01_brest',
+                             '02_vitebsk',
+                             '03_gomel',
+                             '04_grodno',
+                             '05_minsk',
+                             '06_mogilev',
+                             '07_minsk_foreign',
+                         ] as $part) {
+                    exec(
+                        "sed -i 's|{$member['photo_url']}|{$result['ObjectURL']}|g' "
+                        .
+                        str_replace('*', $part, $path)
+                    );
+                }
+                $result1 = exec("grep -rnw {$member['photo_url']} /home/algerd/htdocs/zubr-server/datasets/member_0* ");
+                if($result1) {
+                    $output->writeln($result1);
+                }
+                $toReplace++;
             } catch (Throwable $e) {
                 if ($e instanceof ClientException) {
                     $response = $e->getResponse();
                     if ($response && in_array($response->getStatusCode(), [404, 403, 400])) {
                         $output->writeln($member['photo_url'] . ':' . $response->getStatusCode());
-                        exec("sed -i 's+{$member['photo_url']}+{$placeholderURL}+g' $path");
+                        foreach ([
+                                     '00_parent',
+                                     '07_minsk_capital',
+                                     '01_brest',
+                                     '02_vitebsk',
+                                     '03_gomel',
+                                     '04_grodno',
+                                     '05_minsk',
+                                     '06_mogilev',
+                                     '07_minsk_foreign',
+                                 ] as $part) {
+                            exec(
+                                "sed -i 's|{$member['photo_url']}|{$placeholderURL}|g' "
+                                .
+                                str_replace('*', $part, $path)
+                            );
+                        }
                         continue;
                     }
                 }
-                $output->writeln($e->getLine());
                 $output->writeln($member['photo_url']);
                 $output->writeln($e->getMessage());
                 $output->writeln($member['member_id']);
@@ -108,7 +147,7 @@ TAG
                 continue;
             }
         }
-
+        $output->writeln("All: {$notInAWS}  Uploaded:{$toReplace}");
 
         return 0;
     }
