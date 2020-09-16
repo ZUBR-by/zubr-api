@@ -4,7 +4,7 @@ pipeline {
     disableConcurrentBuilds()
   }
   stages {
-    stage('Back-end') {
+    stage('Build') {
         agent {
             dockerfile {
                 filename 'infrastructure/php/gitlab/Dockerfile'
@@ -12,6 +12,14 @@ pipeline {
         }
         steps {
             sh 'composer install -a --no-dev --no-interaction'
+        }
+    }
+    stage('Deploy') {
+        agent {
+            docker { image 'kissmy/ansistrano:latest'}
+        }
+        steps {
+            sh 'ls -l'
         }
     }
   }
