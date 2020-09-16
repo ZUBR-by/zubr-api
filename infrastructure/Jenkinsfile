@@ -4,10 +4,15 @@ pipeline {
     disableConcurrentBuilds()
   }
   stages {
-    stage('Gathering env variables') {
-      steps {
-        sh 'echo 6'
-      }
+    stage('Back-end') {
+        agent {
+            dockerfile {
+                filename 'php/gitlab/Dockerfile'
+            }
+        }
+        steps {
+            sh 'composer help'
+        }
     }
   }
 }
