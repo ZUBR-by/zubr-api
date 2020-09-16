@@ -7,7 +7,7 @@ pipeline {
     stage('Back-end') {
         agent {
             dockerfile {
-                filename 'php/gitlab/Dockerfile'
+                filename 'infrastructure/php/gitlab/Dockerfile'
             }
         }
         steps {
