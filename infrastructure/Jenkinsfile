@@ -83,15 +83,10 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
                sh "cp $privateKey ${WORKSPACE}/config/jwt/private.pem"
                sh "cp $publicKey ${WORKSPACE}/config/jwt/public.pem"
             }
-
-            writeFile file: 'infrastructure/hosts', text: """
-${FRONTEND_HOST}
-${BACKEND_HOST}
-"""
-            sh 'chmod 600 infrastructure/hosts'
+            sh 'ls .env'
             ansiblePlaybook(
                playbook: 'infrastructure/ansistrano_master_deploy.yml',
-               inventory: 'infrastructure/hosts',
+               inventory: "$FRONTEND_HOST,$BACKEND_HOST",
                credentialsId: "SSH_PRIVATE_KEY",
                hostKeyChecking: false
             )
