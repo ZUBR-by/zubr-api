@@ -10,16 +10,91 @@ pipeline {
                 filename 'infrastructure/php/gitlab/Dockerfile'
             }
         }
+        environment {
+            APP_ENV            = 'prod'
+            DATABASE_HOST      = credentials('API_DATABASE_HOST')
+            DATABASE_USER      = credentials('API_DATABASE_USER')
+            DATABASE_PASSWORD  = credentials('API_DATABASE_PASSWORD')
+            DATABASE_NAME      = credentials('API_DATABASE_NAME')
+            SENTRY_DSN         = credentials('API_SENTRY_DSN')
+            S3_SECRET          = credentials('API_S3_SECRET')
+            S3_KEY             = credentials('API_S3_KEY')
+            BUCKET_MEMBERS     = credentials('API_BUCKET_MEMBERS')
+            BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
+            JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
+            UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
+        }
         steps {
+            writeFile file: '.env', text: """
+DATABASE_USER=${DATABASE_USER}
+DATABASE_PASSWORD=${DATABASE_PASSWORD}
+DATABASE_HOST=${DATABASE_HOST}
+DATABASE_NAME=${DATABASE_NAME}
+DATABASE_PORT=3306
+
+CORS_ALLOW_ORIGIN=*
+SENTRY_DSN=${SENTRY_DSN}
+APP_ENV=${APP_ENV}
+APP_DEBUG=false
+AWS_SECRET=${S3_SECRET}
+AWS_KEY=${S3_KEY}
+BUCKET_MEMBERS=${BUCKET_MEMBERS}
+BUCKET_REPORTS=${BUCKET_REPORTS}
+
+JWT_PASSPHRASE=${JWT_PASSPHRASE}
+UNSUBSCRIBE_SECRET=${UNSUBSCRIBE_SECRET}
+SHEET_ID=1
+
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+
+"""
+            stash includes: 'vendor/**', name: 'vendor'
+            stash includes: 'infrastructure/**', name: 'infra'
+            stash includes: 'src/**', name: 'src'
+            stash includes: 'public/**', name: 'public'
+            stash includes: 'config/**', name: 'config'
+            stash includes: 'templates/**', name: 'templates'
+            stash includes: 'var/**', name: 'var'
+            stash includes: 'bin/**', name: 'bin'
+            stash includes: '.env', name: 'env'
+
+            sh 'printf "{}" >> config/credentials/google_credentials.json'
             sh 'composer install -a --no-dev --no-interaction'
         }
     }
     stage('Deploy') {
-        agent {
-            docker { image 'kissmy/ansistrano:latest'}
+        environment {
+             BACKEND_HOST  = credentials('API_BACKEND_HOST')
+             FRONTEND_HOST = credentials('FRONTEND_HOST')
         }
         steps {
-            sh 'ls -l'
+            unstash 'vendor'
+            unstash 'infra'
+            unstash 'src'
+            unstash 'public'
+            unstash 'config'
+            unstash 'templates'
+            unstash 'var'
+            unstash 'bin'
+            unstash 'env'
+            withCredentials([file(credentialsId: 'API_JWT_PRIVATE', variable: 'privateKey'),
+                             file(credentialsId: 'API_JWT_PUBLIC', variable: 'publicKey')]) {
+               sh "cp $privateKey ${WORKSPACE}/config/jwt/private.pem"
+               sh "cp $publicKey ${WORKSPACE}/config/jwt/public.pem"
+            }
+
+            writeFile file: 'infrastructure/hosts', text: """
+${FRONTEND_HOST}
+${BACKEND_HOST}
+"""
+            sh 'chmod 600 infrastructure/hosts'
+            ansiblePlaybook(
+               playbook: 'infrastructure/ansistrano_master_deploy.yml',
+               inventory: 'infrastructure/hosts',
+               credentialsId: "SSH_PRIVATE_KEY",
+               hostKeyChecking: false
+            )
         }
     }
   }
