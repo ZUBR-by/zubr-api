@@ -49,16 +49,10 @@ JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
 JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 
 """
-            withCredentials([file(credentialsId: 'API_JWT_PRIVATE', variable: 'privateKey'),
-                                         file(credentialsId: 'API_JWT_PUBLIC', variable: 'publicKey')]) {
-               writeFile file: 'config/jwt/private.pem', text: readFile(privateKey)
-               writeFile file: 'config/jwt/public.pem', text: readFile(publicKey)
-               stash includes: 'config/**', name: 'config'
-            }
-
             sh 'printf "{}" >> config/credentials/google_credentials.json'
             sh 'composer install -a --no-dev --no-interaction'
 
+            stash includes: 'config/**', name: 'config'
             stash includes: 'vendor/**', name: 'vendor'
             stash includes: 'infrastructure/ansistrano_master_deploy.yml', name: 'infra'
             stash includes: 'src/**', name: 'src'
@@ -72,8 +66,9 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
     }
     stage('Deploy') {
         environment {
-             BACKEND_HOST  = credentials('API_BACKEND_HOST')
-             FRONTEND_HOST = credentials('FRONTEND_HOST')
+             BACKEND_HOST     = credentials('API_BACKEND_HOST')
+             FRONTEND_HOST    = credentials('FRONTEND_HOST')
+             CREDENTIALS_PATH = credentials('CREDENTIALS_PATH')
         }
         steps {
             unstash 'vendor'
@@ -85,6 +80,8 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
             unstash 'var'
             unstash 'bin'
             unstash 'env'
+            sh "$CREDENTIALS_PATH/private.pem config/jwt/private.pem"
+            sh "$CREDENTIALS_PATH/public.pem config/jwt/public.pem"
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
                   inventory: "$FRONTEND_HOST,$BACKEND_HOST",
