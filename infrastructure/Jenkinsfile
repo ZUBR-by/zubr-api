@@ -58,7 +58,6 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
             sh 'printf "{}" >> config/credentials/google_credentials.json'
             sh 'composer install -a --no-dev --no-interaction'
             sh "ls -lh $CREDENTIALS_PATH"
-            sh 'whoami'
             sh "$CREDENTIALS_PATH/private.pem config/jwt/private.pem"
             sh "$CREDENTIALS_PATH/public.pem config/jwt/public.pem"
 
