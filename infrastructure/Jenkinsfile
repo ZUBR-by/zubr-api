@@ -3,6 +3,9 @@ pipeline {
   options {
     disableConcurrentBuilds()
   }
+  environment {
+    CREDENTIALS_PATH = credentials('CREDENTIALS_PATH')
+  }
   stages {
     stage('Build') {
         environment {
@@ -18,7 +21,6 @@ pipeline {
             BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
-            CREDENTIALS_PATH   = credentials('CREDENTIALS_PATH')
         }
         agent {
             dockerfile {
