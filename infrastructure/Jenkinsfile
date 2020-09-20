@@ -8,7 +8,10 @@ pipeline {
         agent {
             dockerfile {
                 filename 'infrastructure/php/gitlab/Dockerfile'
+                args "-v ${CREDENTIALS_PATH}:${CREDENTIALS_PATH}"
+
             }
+
         }
         environment {
             APP_ENV            = 'prod'
@@ -23,6 +26,7 @@ pipeline {
             BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
+            CREDENTIALS_PATH   = credentials('CREDENTIALS_PATH')
         }
         steps {
             writeFile file: '.env', text: """
@@ -51,6 +55,8 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 """
             sh 'printf "{}" >> config/credentials/google_credentials.json'
             sh 'composer install -a --no-dev --no-interaction'
+            sh "$CREDENTIALS_PATH/private.pem config/jwt/private.pem"
+            sh "$CREDENTIALS_PATH/public.pem config/jwt/public.pem"
 
             stash includes: 'config/**', name: 'config'
             stash includes: 'vendor/**', name: 'vendor'
@@ -68,7 +74,6 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
         environment {
              BACKEND_HOST     = credentials('API_BACKEND_HOST')
              FRONTEND_HOST    = credentials('FRONTEND_HOST')
-             CREDENTIALS_PATH = credentials('CREDENTIALS_PATH')
         }
         steps {
             unstash 'vendor'
@@ -80,8 +85,6 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
             unstash 'var'
             unstash 'bin'
             unstash 'env'
-            sh "$CREDENTIALS_PATH/private.pem config/jwt/private.pem"
-            sh "$CREDENTIALS_PATH/public.pem config/jwt/public.pem"
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
                   inventory: "$FRONTEND_HOST,$BACKEND_HOST",
