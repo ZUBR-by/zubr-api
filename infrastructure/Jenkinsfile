@@ -3,9 +3,6 @@ pipeline {
   options {
     disableConcurrentBuilds()
   }
-  environment {
-    CREDENTIALS_PATH = credentials('CREDENTIALS_PATH')
-  }
   stages {
     stage('Build') {
         environment {
@@ -25,7 +22,6 @@ pipeline {
         agent {
             dockerfile {
                 filename 'infrastructure/php/gitlab/Dockerfile'
-                args "-v ${CREDENTIALS_PATH}:${CREDENTIALS_PATH}"
 
             }
 
@@ -51,15 +47,18 @@ JWT_PASSPHRASE=${JWT_PASSPHRASE}
 UNSUBSCRIBE_SECRET=${UNSUBSCRIBE_SECRET}
 SHEET_ID=1
 
-JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
-JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+JWT_SECRET_KEY=%kernel.project_dir%/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
 
+"""
+            writeFile file: 'private.pem', text: """
+$PRIVATE_KEY
+"""
+            writeFile file: 'public.pem', text: """
+$PUBLIC_KEY
 """
             sh 'printf "{}" >> config/credentials/google_credentials.json'
             sh 'composer install -a --no-dev --no-interaction'
-            sh "ls -lh $CREDENTIALS_PATH"
-            sh "$CREDENTIALS_PATH/private.pem config/jwt/private.pem"
-            sh "$CREDENTIALS_PATH/public.pem config/jwt/public.pem"
 
             stash includes: 'config/**', name: 'config'
             stash includes: 'vendor/**', name: 'vendor'
@@ -71,6 +70,7 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
             stash includes: 'var/**', name: 'var'
             stash includes: 'bin/**', name: 'bin'
             stash includes: '.env', name: 'env'
+            stash includes: '*.pem', name: 'keys'
         }
     }
     stage('Deploy') {
@@ -88,6 +88,7 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
             unstash 'var'
             unstash 'bin'
             unstash 'env'
+            unstash 'keys'
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
                   inventory: "$FRONTEND_HOST,$BACKEND_HOST",
