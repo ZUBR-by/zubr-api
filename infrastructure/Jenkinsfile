@@ -5,14 +5,6 @@ pipeline {
   }
   stages {
     stage('Build') {
-        agent {
-            dockerfile {
-                filename 'infrastructure/php/gitlab/Dockerfile'
-                args "-v ${CREDENTIALS_PATH}:${CREDENTIALS_PATH}"
-
-            }
-
-        }
         environment {
             APP_ENV            = 'prod'
             DATABASE_HOST      = credentials('API_DATABASE_HOST')
@@ -27,6 +19,14 @@ pipeline {
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
             CREDENTIALS_PATH   = credentials('CREDENTIALS_PATH')
+        }
+        agent {
+            dockerfile {
+                filename 'infrastructure/php/gitlab/Dockerfile'
+                args "-v ${CREDENTIALS_PATH}:${CREDENTIALS_PATH}"
+
+            }
+
         }
         steps {
             writeFile file: '.env', text: """
