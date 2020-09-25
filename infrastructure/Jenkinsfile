@@ -75,8 +75,9 @@ $PUBLIC_KEY
     }
     stage('Deploy') {
         environment {
-             BACKEND_HOST     = credentials('API_BACKEND_HOST')
-             FRONTEND_HOST    = credentials('FRONTEND_HOST')
+             BACKEND_HOST   = credentials('API_BACKEND_HOST')
+             FRONTEND_HOST  = credentials('FRONTEND_HOST')
+             API_HOST_1     = credentials('API_HOST_1')
         }
         steps {
             unstash 'vendor'
@@ -91,7 +92,7 @@ $PUBLIC_KEY
             unstash 'keys'
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
-                  inventory: "$FRONTEND_HOST,$BACKEND_HOST",
+                  inventory: "$FRONTEND_HOST,$BACKEND_HOST,$API_HOST_1",
                   credentialsId: "SSH_PRIVATE_KEY",
                   hostKeyChecking: false
             )
