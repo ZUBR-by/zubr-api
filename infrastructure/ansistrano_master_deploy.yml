@@ -9,6 +9,7 @@
     ansistrano_deploy_from: "{{ playbook_dir }}/../"
     ansistrano_keep_releases: 5
     ansistrano_after_symlink_tasks_file: "{{ playbook_dir }}/after_symlink_master.yml"
+    ansistrano_before_symlink_tasks_file: "{{ playbook_dir }}/before_symlink.yml"
     ansistrano_shared_paths:
       - "config/shared"
   roles:
