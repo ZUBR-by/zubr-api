@@ -70,8 +70,8 @@ class UpdateMembersOrganizations extends Command
         $rows       = [];
         $rowCounter = 0;
         $lineNumber = 0;
-        echo $this->projectDir . '/datasets/' . $dataset . '.csv' . PHP_EOL;
-        $handle = fopen($this->projectDir . '/datasets/' . $dataset . '.csv', "r");
+        echo $this->projectDir . '/datasets/2020/' . $dataset . '.csv' . PHP_EOL;
+        $handle = fopen($this->projectDir . '/datasets/2020/' . $dataset . '.csv', "r");
         if (fgets($handle, 4) !== "\xef\xbb\xbf") {
             rewind($handle);
         }
@@ -122,7 +122,7 @@ class UpdateMembersOrganizations extends Command
     private function prepareInsertsMembers(int $limit) : array
     {
         $header     = (function () {
-            $handle = fopen($this->projectDir . '/datasets/member-00_parent.csv', "r");
+            $handle = fopen($this->projectDir . '/datasets/2020/member-00_parent.csv', "r");
             if (fgets($handle, 4) !== "\xef\xbb\xbf") {
                 rewind($handle);
             }
@@ -164,8 +164,8 @@ class UpdateMembersOrganizations extends Command
                  ] as $file
         ) {
             $lineNumber = 0;
-            echo $this->projectDir . '/datasets/' . $file . '.csv' . PHP_EOL;
-            $handle = fopen($this->projectDir . "/datasets/member-{$file}.csv", "r");
+            echo $this->projectDir . '/datasets/2020/' . $file . '.csv' . PHP_EOL;
+            $handle = fopen($this->projectDir . "/datasets/2020/member-{$file}.csv", "r");
             while (($row = fgetcsv($handle)) !== false) {
                 $lineNumber++;
                 if ($lineNumber === 1) {

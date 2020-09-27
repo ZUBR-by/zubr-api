@@ -85,7 +85,7 @@ class LoadImagesLocal extends Command
                      '07_minsk_foreign',
                  ] as $file
         ) {
-            $path = "$this->projectDir/datasets/member-{$file}.csv";
+            $path = "$this->projectDir/datasets/2020/member-{$file}.csv";
             foreach ($photos as $memberId => $content) {
                 $grep        = "grep -rn ^{$memberId}, $path | cut -f1 -d:";
                 $lineNumber1 = exec($grep);
@@ -98,7 +98,7 @@ class LoadImagesLocal extends Command
             }
         }
         foreach ($map as $file => $item) {
-            $path = "$this->projectDir/datasets/member-{$file}.csv";
+            $path = "$this->projectDir/datasets/2020/member-{$file}.csv";
             foreach ($item as $content) {
                 $current    = explode(',', exec("sed -n '{$content[2]}p' $path"));
                 if ($current[6] !== ''){

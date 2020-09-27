@@ -75,7 +75,7 @@ class LoadFinalReports extends Command
     {
         $this->connection->transactional(function () use ($output, $input) {
             $this->connection->executeQuery('DELETE FROM final_report');
-            $handle = fopen($this->projectDir . '/datasets/final.csv', "r");
+            $handle = fopen($this->projectDir . '/datasets/results/final.csv', "r");
             $header = fgetcsv($handle);
             $keys   = [];
             foreach ($header as $key => $item) {
