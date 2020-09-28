@@ -49,6 +49,7 @@ SHEET_ID=1
 
 JWT_SECRET_KEY=%kernel.project_dir%/private.pem
 JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
+GIT_COMMIT=${GIT_COMMIT}
 
 """
             writeFile file: 'private.pem', text: """

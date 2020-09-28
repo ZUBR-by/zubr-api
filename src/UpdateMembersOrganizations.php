@@ -32,7 +32,8 @@ class UpdateMembersOrganizations extends Command
     protected function configure()
     {
         $this->setName('update:members')
-            ->setDescription('Drop database, create schema and load datasets');
+            ->setDescription('Drop database, create schema and load datasets')
+            ->addOption('force');
     }
 
     /**
@@ -40,7 +41,37 @@ class UpdateMembersOrganizations extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $this->connection->transactional(function () use ($output, $input) {
+        $last = $this->connection->fetchColumn('SELECT checksum FROM datasets_update ORDER BY created_at');
+        $sha1 = '';
+        foreach ([
+                     '00_parent',
+                     '07_minsk_capital',
+                     '01_brest',
+                     '02_vitebsk',
+                     '03_gomel',
+                     '04_grodno',
+                     '05_minsk',
+                     '06_mogilev',
+                     '07_minsk_foreign',
+                 ] as $file
+        ) {
+            $sha1 .= sha1_file($this->projectDir . '/datasets/2020/member-' . $file . '.csv');
+        }
+        $currentCheckSum = sha1($sha1);
+        if (! $input->getOption('force') && $currentCheckSum === $last) {
+            $output->writeln('No changes');
+            return 0;
+        }
+
+        $this->connection->transactional(function () use ($output, $input, $currentCheckSum) {
+            $this->connection->insert(
+                'datasets_update',
+                [
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'checksum'   => $currentCheckSum,
+                    'git_commit' => $_ENV['GIT_COMMIT'] ?? '',
+                ]
+            );
             $limit = ($input->getOption('verbose') ? 1 : 10000);
             $this->connection->executeQuery('DELETE FROM member_tag');
             $this->connection->executeQuery('DELETE FROM tag');
