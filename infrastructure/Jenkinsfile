@@ -91,9 +91,16 @@ $PUBLIC_KEY
             unstash 'bin'
             unstash 'env'
             unstash 'keys'
+            writeFile file: 'hosts', text: """
+$FRONTEND_HOST
+$BACKEND_HOST
+$API_HOST_1
+[data]
+$BACKEND_HOST
+            """
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
-                  inventory: "$FRONTEND_HOST,$BACKEND_HOST,$API_HOST_1",
+                  inventory: "hosts",
                   credentialsId: "SSH_PRIVATE_KEY",
                   hostKeyChecking: false
             )
