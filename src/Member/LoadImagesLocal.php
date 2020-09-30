@@ -65,13 +65,16 @@ class LoadImagesLocal extends Command
             [$commissionCode, $fullName] = explode(' ', $fullName, 2);
             $extension  = str_replace('e', '', $extension);
             $commission = $this->connection->fetchColumn('SELECT id FROM commission WHERE code = ?', [$commissionCode]);
-            $member     = $this->connection->fetchColumn('SELECT id FROM member WHERE commission_id = ? and full_name = ?',
-                [$commission, $fullName]);
-
+            $member     = $this->connection->fetchColumn(
+                'SELECT id FROM member WHERE commission_id = ? and full_name = ?',
+                [$commission, $fullName]
+            );
+            if ($member === false) {
+                $output->writeln('not found member:' . $file);
+                continue;
+            }
             $photos[$member] = [$file, ['png' => 'image/png;', 'jpg' => 'image/jpeg;'][$extension]];
-
         }
-
         $map = [];
         foreach ([
                      '00_parent',
@@ -97,13 +100,11 @@ class LoadImagesLocal extends Command
                 }
             }
         }
+        $uploaded = 0;
         foreach ($map as $file => $item) {
             $path = "$this->projectDir/datasets/2020/member-{$file}.csv";
             foreach ($item as $content) {
-                $current    = explode(',', exec("sed -n '{$content[2]}p' $path"));
-                if ($current[6] !== ''){
-                    continue;
-                }
+                $current = explode(',', exec("sed -n '{$content[2]}p' $path"));
                 $result     = $s3->putObject([
                     'Bucket'      => $this->bucketMembers,
                     'ContentType' => $content[1],
@@ -114,9 +115,10 @@ class LoadImagesLocal extends Command
                 $current[6] = $result['ObjectURL'];
                 $changed    = implode(',', $current);
                 exec("sed -i '{$content[2]}s|.*|$changed|' $path");
+                $uploaded++;
             }
         }
-
+        $output->writeln('Uploaded: ' . $uploaded);
         return 0;
     }
 }
