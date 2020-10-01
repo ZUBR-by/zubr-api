@@ -2,3 +2,6 @@
 - name: update members if needed
   shell: '{{ ansistrano_release_path.stdout }}/bin/console update:members'
   when: inventory_hostname in groups['data']
+  register: update
+- debug: var=update.stdout_lines
+
