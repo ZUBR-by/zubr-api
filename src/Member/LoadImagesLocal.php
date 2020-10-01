@@ -101,10 +101,14 @@ class LoadImagesLocal extends Command
             }
         }
         $uploaded = 0;
+        $exists = 0;
         foreach ($map as $file => $item) {
             $path = "$this->projectDir/datasets/2020/member-{$file}.csv";
             foreach ($item as $content) {
                 $current = explode(',', exec("sed -n '{$content[2]}p' $path"));
+                if (strpos($current[6], 'members2020') !== false) {
+                    $exists++;
+                }
                 $result     = $s3->putObject([
                     'Bucket'      => $this->bucketMembers,
                     'ContentType' => $content[1],
@@ -118,7 +122,8 @@ class LoadImagesLocal extends Command
                 $uploaded++;
             }
         }
-        $output->writeln('Uploaded: ' . $uploaded);
+        $output->writeln('Added: ' . ($uploaded - $exists));
+        $output->writeln('Reuploaded: ' . $exists);
         return 0;
     }
 }
