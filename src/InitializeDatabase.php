@@ -106,7 +106,7 @@ class InitializeDatabase extends Command
             }
             $row  = array_map(
                 function ($s) {
-                    return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
+                    return $s === 'NULL' ? 'NULL' : '\'' . str_replace('\'', '"', $s) . '\'';
                 },
                 $row
             );
@@ -133,7 +133,7 @@ class InitializeDatabase extends Command
     private function prepareInsertsMembers(int $limit) : array
     {
         $header     = (function () {
-            $handle = fopen($this->projectDir . '/datasets/20202/member-00_parent.csv', "r");
+            $handle = fopen($this->projectDir . '/datasets/2020/member-00_parent.csv', "r");
             if (fgets($handle, 4) !== "\xef\xbb\xbf") {
                 rewind($handle);
             }
@@ -175,8 +175,8 @@ class InitializeDatabase extends Command
                  ] as $file
         ) {
             $lineNumber = 0;
-            echo $this->projectDir . '/datasets/'. $file . '.csv' . PHP_EOL;
-            $handle     = fopen($this->projectDir . "/datasets/member-{$file}.csv", "r");
+            echo $this->projectDir . '/datasets/2020/'. $file . '.csv' . PHP_EOL;
+            $handle     = fopen($this->projectDir . "/datasets/2020/member-{$file}.csv", "r");
             while (($row = fgetcsv($handle)) !== false) {
                 $lineNumber++;
                 if ($lineNumber === 1) {
@@ -184,7 +184,7 @@ class InitializeDatabase extends Command
                 }
                 $row    = array_map(
                     function ($s) {
-                        return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
+                        return $s === 'NULL' ? 'NULL' : '\'' . str_replace('\'', '"', $s) . '\'';
                     },
                     $row
                 );

@@ -10,7 +10,7 @@ RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/i
 RUN docker-php-ext-install \
         mbstring \
         opcache \
-        pdo pdo_mysql \
+        pdo pdo_pgsql \
         sockets \
         bcmath \
         gd \

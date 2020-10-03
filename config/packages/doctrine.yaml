@@ -3,9 +3,10 @@ doctrine:
         dbname: '%env(DATABASE_NAME)%'
         user: '%env(DATABASE_USER)%'
         password: '%env(DATABASE_PASSWORD)%'
-        port: '%env(DATABASE_PORT)%'
+        port: ~
         host: '%env(DATABASE_HOST)%'
-        server_version: '10.5'
+        server_version: '9.6'
+        driver: pdo_pgsql
         default_table_options:
             collate: utf8mb4_general_ci
     orm:
