@@ -24,3 +24,4 @@ RUN docker-php-ext-install \
 
 # Install Composer
 RUN curl --silent --show-error https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+COPY . /app/

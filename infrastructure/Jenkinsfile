@@ -164,7 +164,7 @@ $BACKEND_HOST
   }
   post {
     always {
-      sh 'make compose-ci-down'
+      sh 'make compose-down-ci'
       cleanWs()
     }
   }
