@@ -55,7 +55,7 @@ $PUBLIC_KEY
         """
                     sh 'make compose-composer'
                     sh 'make database-init-ci'
-                    sh 'vendor/bin/phpunit'
+                    sh 'make compose-phpunit'
         }
 
     }

@@ -38,3 +38,8 @@ compose-composer:
 	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml \
 	-f infrastructure/docker-compose.db.yml \
 	run --no-deps --rm php /app/bin/composer install
+
+compose-phpunit:
+	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml \
+	-f infrastructure/docker-compose.db.yml \
+	run --no-deps --rm php /app/vendor/bin/phpunit
