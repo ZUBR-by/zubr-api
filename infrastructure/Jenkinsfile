@@ -7,6 +7,13 @@ pipeline {
     disableConcurrentBuilds()
   }
   stages {
+    agent {
+        dockerfile {
+            filename 'infrastructure/php/gitlab/Dockerfile'
+
+        }
+
+    }
     stage('Test') {
         environment {
             APP_ENV            = 'test'
@@ -72,13 +79,6 @@ $PUBLIC_KEY
             BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
-        }
-        agent {
-            dockerfile {
-                filename 'infrastructure/php/gitlab/Dockerfile'
-
-            }
-
         }
         steps {
             writeFile file: '.env', text: """
