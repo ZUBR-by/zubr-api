@@ -31,7 +31,6 @@ DATABASE_NAME=${DATABASE_NAME}
 DATABASE_PORT=3306
 
 CORS_ALLOW_ORIGIN=*
-SENTRY_DSN=${SENTRY_DSN}
 APP_ENV=${APP_ENV}
 APP_DEBUG=false
 AWS_SECRET=${S3_SECRET}
@@ -54,6 +53,7 @@ $PRIVATE_KEY
                     writeFile file: 'public.pem', text: """
 $PUBLIC_KEY
         """
+                    sh 'bin/console database:init'
                     sh 'vendor/bin/phpunit'
         }
 
@@ -163,7 +163,7 @@ $BACKEND_HOST
   }
   post {
     always {
-      sh 'docker-compose down || true'
+      sh 'make compose-ci-down'
       cleanWs()
     }
   }
