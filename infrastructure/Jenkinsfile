@@ -1,9 +1,63 @@
 pipeline {
   agent any
+  environment {
+    COMPOSE_PROJECT_NAME = 'zubr_test'
+  }
   options {
     disableConcurrentBuilds()
   }
   stages {
+    stage('Test') {
+        environment {
+            APP_ENV            = 'test'
+            DATABASE_HOST      = 'database'
+            DATABASE_USER      = 'test'
+            DATABASE_PASSWORD  = 'test'
+            DATABASE_NAME      = 'zubr_test'
+            S3_SECRET          = credentials('API_S3_SECRET')
+            S3_KEY             = credentials('API_S3_KEY')
+            BUCKET_MEMBERS     = credentials('API_BUCKET_MEMBERS')
+            BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
+            JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
+            UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
+        }
+        steps {
+                    sh 'make compose-up-ci'
+                    writeFile file: '.env', text: """
+DATABASE_USER=${DATABASE_USER}
+DATABASE_PASSWORD=${DATABASE_PASSWORD}
+DATABASE_HOST=${DATABASE_HOST}
+DATABASE_NAME=${DATABASE_NAME}
+DATABASE_PORT=3306
+
+CORS_ALLOW_ORIGIN=*
+SENTRY_DSN=${SENTRY_DSN}
+APP_ENV=${APP_ENV}
+APP_DEBUG=false
+AWS_SECRET=${S3_SECRET}
+AWS_KEY=${S3_KEY}
+BUCKET_MEMBERS=${BUCKET_MEMBERS}
+BUCKET_REPORTS=${BUCKET_REPORTS}
+
+JWT_PASSPHRASE=${JWT_PASSPHRASE}
+UNSUBSCRIBE_SECRET=${UNSUBSCRIBE_SECRET}
+SHEET_ID=1
+
+JWT_SECRET_KEY=%kernel.project_dir%/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
+GIT_COMMIT=${GIT_COMMIT}
+
+        """
+                    writeFile file: 'private.pem', text: """
+$PRIVATE_KEY
+        """
+                    writeFile file: 'public.pem', text: """
+$PUBLIC_KEY
+        """
+                    sh 'vendor/bin/phpunit'
+        }
+
+    }
     stage('Build') {
         environment {
             APP_ENV            = 'prod'
@@ -98,17 +152,18 @@ $API_HOST_1
 [data]
 $BACKEND_HOST
             """
-            ansiblePlaybook(
-                  playbook: 'infrastructure/ansistrano_master_deploy.yml',
-                  inventory: "hosts",
-                  credentialsId: "SSH_PRIVATE_KEY",
-                  hostKeyChecking: false
-            )
+//             ansiblePlaybook(
+//                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
+//                   inventory: "hosts",
+//                   credentialsId: "SSH_PRIVATE_KEY",
+//                   hostKeyChecking: false
+//             )
         }
     }
   }
   post {
     always {
+      sh 'docker-compose down || true'
       cleanWs()
     }
   }

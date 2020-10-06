@@ -35,3 +35,7 @@ infrastructure/*.retry
 !local
 /local/*
 !local/.gitkeep
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
