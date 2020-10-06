@@ -1,0 +1,34 @@
+api_platform:
+  # The title of the API.
+  title: 'Zubr API'
+  enable_swagger_ui: true
+  enable_re_doc: true
+  # The description of the API.
+  description: 'Zubr API documentation'
+
+  # The version of the API.
+  version: '1.0.0'
+
+  # Set this to false if you want Webby to disappear.
+  show_webby: false
+
+  # Specify a path name generator to use.  'App\Operation\SingularPathSegmentNameGenerator'
+  path_segment_name_generator: 'App\Operation\SingularPathSegmentNameGenerator'
+
+  allow_plain_identifiers: true
+
+  collection:
+    pagination:
+      client_enabled: true
+      client_items_per_page: true
+      items_per_page_parameter_name: count
+  mapping:
+    paths: ['%kernel.project_dir%/src/Entity']
+  patch_formats:
+    json: ['application/merge-patch+json']
+  swagger:
+    versions: [3]
+    api_keys:
+      apiKey:
+        name: Authorization
+        type: header
