@@ -31,4 +31,10 @@ compose-down-ci:
 
 database-init-ci:
 	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml \
+	-f infrastructure/docker-compose.db.yml \
 	run --no-deps --rm php bin/console database:init
+
+compose-composer:
+	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml \
+	-f infrastructure/docker-compose.db.yml \
+	run --no-deps --rm php /app/bin/composer install
