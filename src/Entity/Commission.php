@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *    collectionOperations={
  *      "get"={"path"="/commissions", "cache_headers"={"max_age"=360, "shared_max_age"=720, "vary"={"Accept-Language"}}}
  *    },
- *    itemOperations={"get", "get_commission_print"={"route_name"="commission_print"}},
+ *    itemOperations={"get", "get_commission_print"={"route_name"="commission_print", "method"="get"}},
  *    normalizationContext={"groups"={"commissions", "map_view","organization", "public", "private"}},
  * )
  * @ApiFilter(
