@@ -28,3 +28,7 @@ compose-up-ci:
 compose-down-ci:
 	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml \
 	-f infrastructure/docker-compose.db.yml down
+
+database-init-ci:
+	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml \
+	run --no-deps --rm php bin/console database:init

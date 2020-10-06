@@ -21,12 +21,6 @@ pipeline {
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
         }
-        agent {
-            dockerfile {
-                filename 'infrastructure/php/gitlab/Dockerfile'
-
-            }
-        }
         steps {
                     sh 'make compose-up-ci'
                     writeFile file: '.env', text: """
@@ -59,7 +53,7 @@ $PRIVATE_KEY
                     writeFile file: 'public.pem', text: """
 $PUBLIC_KEY
         """
-                    sh 'bin/console database:init'
+                    sh 'make database-init-ci'
                     sh 'vendor/bin/phpunit'
         }
 
@@ -78,6 +72,13 @@ $PUBLIC_KEY
             BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
+        }
+        agent {
+            dockerfile {
+                filename 'infrastructure/php/gitlab/Dockerfile'
+
+            }
+
         }
         steps {
             writeFile file: '.env', text: """
