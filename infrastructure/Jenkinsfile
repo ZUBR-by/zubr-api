@@ -74,13 +74,6 @@ $PUBLIC_KEY
             JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
             UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
         }
-        agent {
-            dockerfile {
-                filename 'infrastructure/php/gitlab/Dockerfile'
-
-            }
-
-        }
         steps {
             writeFile file: '.env', text: """
 DATABASE_USER=${DATABASE_USER}
@@ -114,7 +107,7 @@ $PRIVATE_KEY
 $PUBLIC_KEY
 """
             sh 'printf "{}" >> config/credentials/google_credentials.json'
-            sh 'composer install -a --no-dev --no-interaction'
+            sh 'make compose-composer-prod'
 
             stash includes: 'config/**', name: 'config'
             stash includes: 'vendor/**', name: 'vendor'
@@ -165,7 +158,6 @@ $BACKEND_HOST
   post {
     always {
       sh 'make compose-down-ci'
-      cleanWs()
     }
   }
 }
