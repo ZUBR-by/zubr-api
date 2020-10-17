@@ -64,6 +64,21 @@ services:
   App\Unsubscribe:
     tags: ['controller.service_arguments']
 
+  App\Courts\LoadJudgesData:
+    arguments: ['@doctrine.dbal.courts_connection']
+
+  App\Courts\LoadHistoryData:
+    arguments: ['@doctrine.dbal.courts_connection']
+
+  App\Courts\LoadImagesLocal:
+    arguments: ['@doctrine.dbal.courts_connection']
+
+  App\Courts\LoadCourtsData:
+    arguments: ['@doctrine.dbal.courts_connection']
+
+  App\Decisions\LoadDecisions:
+    arguments: ['@doctrine.dbal.courts_connection']
+
   'App\Normalizer':
     decorates: 'api_platform.jsonld.normalizer.item'
     arguments: [ '@App\Normalizer.inner' ]

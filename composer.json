@@ -23,7 +23,8 @@
         "symfony/security-bundle": "5.0.*",
         "symfony/yaml": "5.0.*",
         "treinetic/imageartist": "^1.0",
-        "scienta/doctrine-json-functions" : "^4.1"
+        "scienta/doctrine-json-functions" : "^4.1",
+        "wapmorgan/morphos" : "3.*"
     },
     "config": {
         "preferred-install": {

@@ -546,6 +546,9 @@
     "twig/twig": {
         "version": "v3.0.3"
     },
+    "wapmorgan/morphos": {
+        "version": "3.2.22"
+    },
     "webimpress/safe-writer": {
         "version": "2.0.1"
     },
