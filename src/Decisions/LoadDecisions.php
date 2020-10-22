@@ -183,7 +183,10 @@ TAG
 
     public function loadCourts()
     {
-        $handle = fopen($this->projectDir . '/local/courts/courts.csv', "r");
+        $handle = fopen($this->projectDir . '/datasets/courts/courts_translated.csv', "r");
+        if ($handle === false) {
+            throw new \LogicException();
+        }
         if (fgets($handle, 4) !== "\xef\xbb\xbf") {
             rewind($handle);
         }
