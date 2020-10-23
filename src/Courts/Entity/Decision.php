@@ -97,9 +97,9 @@ class Decision
     private $aftermathAmount;
 
     /**
-     * @var string
+     * @var array
      *
-     * @ORM\Column(type="string", length=1000, nullable=false, options={"default" : ""})
+     * @ORM\Column(type="json", length=1000, nullable=false, options={"default" : ""})
      */
     private $article;
 
@@ -172,7 +172,7 @@ class Decision
         return $this->aftermathAmount;
     }
 
-    public function getArticle() : string
+    public function getArticle() : array
     {
         return $this->article;
     }
@@ -190,6 +190,18 @@ class Decision
     public function getFullName() : string
     {
         return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
+    }
+
+    public function getAftermath() : string
+    {
+        if (! in_array($this->aftermathType, ['arrest', 'fine'])) {
+            return '';
+        }
+        if ($this->aftermathType === 'arrest') {
+            return sprintf('%s сут.', (int) $this->aftermathAmount);
+        }
+
+        return sprintf('%s б.в.', (int) $this->aftermathAmount);
     }
 
 }

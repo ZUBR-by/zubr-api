@@ -4,6 +4,7 @@ namespace App;
 
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use App\Courts\Entity\Court;
 use App\Entity\Commission;
 use App\Entity\Member;
 use App\Entity\Organization;
@@ -15,6 +16,7 @@ class SearchByAllFields extends AbstractContextAwareFilter
         Member::class       => ['fullName', 'workTitle', 'description'],
         Organization::class => ['name', 'description', 'location'],
         Commission::class   => ['name', 'description', 'location'],
+        Court::class        => ['name', 'address', 'description'],
     ];
 
     protected function filterProperty(
@@ -55,11 +57,13 @@ class SearchByAllFields extends AbstractContextAwareFilter
         $words = explode(' ', $value);
         $terms = '';
         foreach ($words as $word) {
-            if (! trim($word)) { continue; }
-            $word = str_replace('"', '', $word);
+            if (! trim($word)) {
+                continue;
+            }
+            $word  = str_replace('"', '', $word);
             $terms .= " +$word*";
         }
-        $terms = trim($terms);
+        $terms        = trim($terms);
         $fieldsString = implode(', ', $fields);
         $queryBuilder->andWhere("MATCH_AGAINST($fieldsString) AGAINST(:terms) > 0");
         $queryBuilder->addSelect("MATCH_AGAINST($fieldsString) AGAINST(:terms) as HIDDEN match_relevance");

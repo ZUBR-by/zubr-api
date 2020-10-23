@@ -67,17 +67,22 @@ class LoadDecisions extends Command
             $command = $app->find('update:courts');
             $command->run(new ArrayInput(['command' => 'update:courts', '-v' => true]), $output);
 
-            $translations = json_decode(
+            $translations         = json_decode(
                 file_get_contents($this->projectDir . '/datasets/courts/names.json'),
                 true
             );
-            $decisions    = json_decode(
+            $translationsArticles = json_decode(
+                file_get_contents($this->projectDir . '/local/vyasna/articles.json'),
+                true
+            );
+            $decisions            = json_decode(
                 file_get_contents($this->projectDir . '/datasets/courts/decisions.json'),
                 true
             );
-            $map          = [];
-            $courts       = $this->loadCourts();
-            $lastId       = ((int) $this->connection->fetchOne('SELECT MAX(id) FROM judge')) + 1;
+            $map                  = [];
+            $courts               = $this->loadCourts();
+            $lastId               = ((int) $this->connection->fetchOne('SELECT MAX(id) FROM judge')) + 1;
+            $articles             = [];
             foreach ($decisions as $decision) {
                 $fullName = new TranslatedFullName($decision['full_name'], $translations);
                 $data     = [
@@ -160,21 +165,24 @@ TAG
                         $data['aftermath_extra'] = $decision['fine'];
                     }
                 }
+                $data['article'] = json_encode(
+                    array_unique(
+                        array_map(
+                            'trim',
+                            explode(
+                                ',',
+                                strtr($data['article'], $translationsArticles)
+                            )
+                        )
+                    )
+                );
+
                 try {
-                    $this->connection->insert(
-                        'decisions',
-                        $data
-                    );
+                    $this->connection->insert('decisions', $data);
                 } catch (Throwable $e) {
                     throw $e;
                 }
-
             }
-
-//            file_put_contents(
-//                $this->projectDir . '/local/vyasna/decisions_c.json',
-//                json_encode(array_map('array_unique', $map), JSON_PRETTY_PRINT)
-//            );
         });
 
         return 0;

@@ -2,16 +2,23 @@
 
 namespace App\Courts\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
-
+use App\SearchByAllFields;
 /**
- * @ORM\Table(name="court")
+ * @ORM\Table(
+ *     name="court",
+ *     indexes={
+ *          @ORM\Index(columns={"name", "address", "description"}, flags={"fulltext"})
+ *     }
+ * )
  * @ORM\Entity
  * @ApiResource(
  *    collectionOperations={"get"},
  *    itemOperations={"get"}
  * )
+ * @ApiFilter(SearchByAllFields::class)
  * */
 class Court
 {
