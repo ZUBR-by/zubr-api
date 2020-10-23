@@ -72,7 +72,7 @@ class LoadDecisions extends Command
                 true
             );
             $translationsArticles = json_decode(
-                file_get_contents($this->projectDir . '/local/vyasna/articles.json'),
+                file_get_contents($this->projectDir . '/datasets/courts/articles.json'),
                 true
             );
             $decisions            = json_decode(
