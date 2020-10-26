@@ -142,21 +142,6 @@ class Decision
         return $this->judge;
     }
 
-    public function getLastName() : string
-    {
-        return $this->lastName;
-    }
-
-    public function getFirstName() : string
-    {
-        return $this->firstName;
-    }
-
-    public function getMiddleName() : string
-    {
-        return $this->middleName;
-    }
-
     public function getAftermathType() : string
     {
         return $this->aftermathType;

@@ -82,7 +82,6 @@ class LoadDecisions extends Command
             $map                  = [];
             $courts               = $this->loadCourts();
             $lastId               = ((int) $this->connection->fetchOne('SELECT MAX(id) FROM judge')) + 1;
-            $articles             = [];
             foreach ($decisions as $decision) {
                 $fullName = new TranslatedFullName($decision['full_name'], $translations);
                 $data     = [
@@ -91,7 +90,16 @@ class LoadDecisions extends Command
                     'last_name'   => $fullName->lastName(),
                     'middle_name' => $fullName->middleName(),
                     'description' => $decision['event_date'] ?: null,
-                    'comment'     => $decision['extra'],
+                    'comment'     => json_encode(
+                        [
+                            'extra'     => $decision['extra'],
+                            'judge'     => $decision['judge'],
+                            'sex'       => $decision['sex'],
+                            'court'     => $decision['court'],
+                            'full_name' => $decision['full_name'],
+                        ],
+                        JSON_UNESCAPED_UNICODE
+                    ),
                     'article'     => $decision['article'],
                     'court_id'    => $courts[$decision['court']] ?? self::COURTS[$decision['court']] ?? null,
                 ];
