@@ -6,14 +6,24 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use App\SearchByAllFields;
 
 /**
- * @ORM\Table(name="judge")
+ * @ORM\Table(
+ *     name="judge",
+ *     indexes={
+ *          @ORM\Index(
+ *              columns={"first_name", "middle_name", "last_name", "description"},
+ *              flags={"fulltext"}
+ *          )
+ *     }
+ * )
  * @ORM\Entity
  * @ApiResource(
  *    collectionOperations={"get"},
  *    itemOperations={"get"}
  * )
+ * @ApiFilter(SearchByAllFields::class)
  * @ApiFilter(
  *     SearchFilter::class,
  *     properties={

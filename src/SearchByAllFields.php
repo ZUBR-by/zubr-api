@@ -5,6 +5,7 @@ namespace App;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Courts\Entity\Court;
+use App\Courts\Entity\Judge;
 use App\Entity\Commission;
 use App\Entity\Member;
 use App\Entity\Organization;
@@ -17,6 +18,7 @@ class SearchByAllFields extends AbstractContextAwareFilter
         Organization::class => ['name', 'description', 'location'],
         Commission::class   => ['name', 'description', 'location'],
         Court::class        => ['name', 'address', 'description'],
+        Judge::class        => ['firstName', 'lastName', 'middleName', 'description'],
     ];
 
     protected function filterProperty(
