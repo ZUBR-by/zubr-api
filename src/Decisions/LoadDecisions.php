@@ -58,16 +58,43 @@ class LoadDecisions extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $this->connection->transactional(function () use ($output, $input) {
-            $this->connection->executeQuery('DELETE FROM judge_career');
-            $this->connection->executeQuery('DELETE FROM decisions');
-            $app     = $this->getApplication();
+        $app     = $this->getApplication();
+        $command = $app->find('doctrine:database:drop');
+        $command->run(
+            new ArrayInput([
+                'command'      => 'doctrine:database:drop',
+                '--force'      => true,
+                '--connection' => 'courts',
+            ]),
+            $output
+        );
+        $output->writeln('Recreating schema...');
+        $command = $app->find('doctrine:database:create');
+        $command->run(new ArrayInput(
+            [
+                'command' => 'doctrine:database:create',
+                '--connection'    => 'courts',
+            ]
+        ),
+            $output
+        );
+        $command = $app->find('doctrine:schema:create');
+        $command->run(new ArrayInput(
+            [
+                'command' => 'doctrine:schema:create',
+                '--em'    => 'courts',
+            ]
+        ), $output);
+
+        $this->connection->transactional(function () use ($output, $input, $app) {
             $command = $app->find('load:judges');
             $command->run(new ArrayInput(['command' => 'update:judges']), $output);
 
-            $app     = $this->getApplication();
             $command = $app->find('load:courts');
             $command->run(new ArrayInput(['command' => 'update:courts', '-v' => true]), $output);
+
+            $command = $app->find('load:history');
+            $command->run(new ArrayInput(['command' => 'load:history']), $output);
 
             $translations         = json_decode(
                 file_get_contents($this->projectDir . '/datasets/courts/names.json'),
