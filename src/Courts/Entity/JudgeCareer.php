@@ -34,20 +34,27 @@ class JudgeCareer
     /**
      * @ORM\Column(type="date", nullable=true)
      */
-    private $startedAt;
+    private $timestamp;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
-     */
-    private $endedAt;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="string", length=20, nullable=true)
      */
     private $decreeNumber;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private $type;
 
     /**
      * @ORM\Column(type="string", nullable=true)
      */
     private $position;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=500, nullable=false, options={"default" : ""})
+     */
+    private $comment;
 }

@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
+use function App\iterateCSV;
 
 class LoadDecisions extends Command
 {
@@ -58,13 +59,14 @@ class LoadDecisions extends Command
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $this->connection->transactional(function () use ($output, $input) {
+            $this->connection->executeQuery('DELETE FROM judge_career');
             $this->connection->executeQuery('DELETE FROM decisions');
             $app     = $this->getApplication();
-            $command = $app->find('update:judges');
+            $command = $app->find('load:judges');
             $command->run(new ArrayInput(['command' => 'update:judges']), $output);
 
             $app     = $this->getApplication();
-            $command = $app->find('update:courts');
+            $command = $app->find('load:courts');
             $command->run(new ArrayInput(['command' => 'update:courts', '-v' => true]), $output);
 
             $translations         = json_decode(
@@ -81,7 +83,7 @@ class LoadDecisions extends Command
             );
             $map                  = [];
             $courts               = $this->loadCourts();
-            $lastId               = ((int) $this->connection->fetchOne('SELECT MAX(id) FROM judge')) + 1;
+            $missing              = [];
             foreach ($decisions as $decision) {
                 $fullName = new TranslatedFullName($decision['full_name'], $translations);
                 $data     = [
@@ -113,43 +115,27 @@ class LoadDecisions extends Command
                 $judgeId = null;
                 if ($decision['judge']) {
                     $judgeName = new TranslatedFullName($decision['judge'], $translations);
-                    $judgeDB   = $this->connection->fetchAssociative(
+                    $judgeDB   = $this->connection->fetchAllAssociative(
                         <<<'TAG'
- SELECT id, first_name, last_name
+ SELECT id, first_name, last_name, middle_name
    FROM judge
   WHERE last_name = :ln
 TAG
                         ,
                         ['ln' => $judgeName->lastName()]
                     );
-                    if (! $judgeDB
-                        || (
-                            $judgeDB['first_name'] !== '' && $judgeDB['first_name'] !== $judgeName->firstName()
-                            && (
-                                $judgeDB['first_name'] !== ''
-                                && $judgeName->firstName() !== ''
-                                && $judgeDB['first_name'][0] !== $judgeName->firstName()[0]
-                            )
-                        )) {
-                        $this->connection->insert(
-                            'judge',
-                            [
-                                'id'          => $lastId,
-                                'first_name'  => $judgeName->firstName(),
-                                'last_name'   => $judgeName->lastName(),
-                                'middle_name' => $judgeName->middleName(),
-                            ]
-                        );
-                        $lastId++;
-                        $judgeId = $this->connection->lastInsertId();
+                    if (! $judgeDB) {
+                        $missing[] = $judgeName->toString();
+                        $judgeId   = null;
                     } else {
-                        $judgeId = $judgeDB['id'];
-                        if ($judgeName->firstName() !== '' && $judgeDB['first_name'] === '') {
-                            $this->connection->update(
-                                'judge',
-                                ['first_name' => $judgeName->firstName()],
-                                ['id' => $judgeId]
-                            );
+                        $judgeId = null;
+                        foreach ($judgeDB as $person) {
+                            if ($judgeName->hasSameFirstNameFirstLetter($person['first_name'])
+                                || $judgeName->firstName() === $person['first_name']
+                                || $judgeName->firstName() === '') {
+                                $judgeId = $person['id'];
+                                break;
+                            }
                         }
                     }
                 }
@@ -184,13 +170,24 @@ TAG
                         )
                     )
                 );
-
                 try {
                     $this->connection->insert('decisions', $data);
                 } catch (Throwable $e) {
                     throw $e;
                 }
             }
+            $missing = array_unique($missing);
+            sort($missing);
+            $output->write(implode(PHP_EOL, array_unique($missing)) . PHP_EOL);
+            $output->writeln(count($missing));
+
+            file_put_contents(
+                'translate.csv',
+                implode(
+                    PHP_EOL,
+                    array_map(fn($i) => explode(' ', $i)[0] . ',,' . $i, $missing)
+                )
+            );
         });
 
         return 0;
@@ -199,16 +196,8 @@ TAG
 
     public function loadCourts()
     {
-        $handle = fopen($this->projectDir . '/datasets/courts/courts_translated.csv', "r");
-        if ($handle === false) {
-            throw new \LogicException();
-        }
-        if (fgets($handle, 4) !== "\xef\xbb\xbf") {
-            rewind($handle);
-        }
-        fgetcsv($handle);
         $courts = [];
-        while (($row = fgetcsv($handle)) !== false) {
+        foreach (iterateCSV($this->projectDir . '/datasets/courts/courts_translated.csv') as $row) {
             if (! $row[1]) {
                 continue;
             }

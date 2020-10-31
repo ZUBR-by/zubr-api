@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace App;
 
@@ -19,16 +20,26 @@ class TranslatedFullName
             [$chunks[1], $chunks[2]] = explode('.', $chunks[1]);
         }
 
-        $chunks = array_map(static function (string $token) : string {
-            return trim(str_replace(['.'], '', $token));
-        }, $chunks);
+        $chunks = array_map(
+            static fn(string $token) : string => trim(str_replace(['.'], '', $token)),
+            $chunks
+        );
 
         $this->lastName   = $chunks[0] ?? '';
         $this->firstName  = $chunks[1] ?? '';
         $this->middleName = $chunks[2] ?? '';
 
-        $this->lastName  = $translations['last_name'][$this->lastName] ?? str_replace(['і'], 'и', $this->lastName);
-        $this->firstName = $translations['first_name'][$this->firstName] ?? str_replace(['і'], 'и', $this->firstName);
+        $this->lastName  = $translations['last_name'][$this->lastName] ?? strtr($this->lastName,
+                [
+                    'і' => 'и',
+                    'І' => 'И',
+                    'ё' => 'е',
+                ]
+            );
+        $this->firstName = $translations['first_name'][$this->firstName] ?? strtr(
+                $this->firstName,
+                ['і' => 'и', 'І' => 'И', 'ё' => 'е']
+            );
     }
 
     public function firstName() : string
@@ -44,5 +55,15 @@ class TranslatedFullName
     public function middleName() : string
     {
         return $this->middleName;
+    }
+
+    public function toString() : string
+    {
+        return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
+    }
+
+    public function hasSameFirstNameFirstLetter(string $compare) : bool
+    {
+        return mb_substr($this->firstName, 0, 1) === mb_substr($compare, 0, 1);
     }
 }

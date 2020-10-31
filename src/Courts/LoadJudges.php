@@ -6,17 +6,12 @@ use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use function App\iterateCSV;
 
-class LoadCourtsData extends Command
+class LoadJudges extends Command
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private Connection $connection;
+    private string $projectDir;
 
     public function __construct(Connection $connection, string $projectDir)
     {
@@ -26,31 +21,19 @@ class LoadCourtsData extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
-        $this->setName('update:courts')->addOption('force');
+        $this->setName('load:judges')->addOption('force');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $this->connection->transactional(function () use ($output, $input) {
             $limit = ($input->getOption('verbose') ? 1 : 10000);
-            $this->connection->executeQuery('DELETE FROM court');
-            $inserts = array_merge(
-                $this->prepareInserts('court', $limit),
-            );
+            $this->connection->executeQuery('DELETE FROM judge');
+            $inserts = $this->prepareInserts('judge', $limit);
             foreach ($inserts as $index => $insert) {
-                try {
-                    $this->connection->executeQuery($insert);
-                } catch (\Throwable $e) {
-                    throw $e;
-                }
+                $this->connection->executeQuery($insert);
             }
         });
 
@@ -63,48 +46,29 @@ class LoadCourtsData extends Command
         $rows       = [];
         $rowCounter = 0;
         $lineNumber = 0;
-        $handle     = fopen($this->projectDir . '/datasets/courts/' . $dataset . '.csv', "r");
-        if (fgets($handle, 4) !== "\xef\xbb\xbf") {
-            rewind($handle);
-        }
-        $fields = implode(
+        $fields     = implode(
             ', ',
             [
                 'id',
-                'longitude',
-                'latitude',
-                'name',
+                'last_name',
+                'first_name',
+                'middle_name',
+                'photo_url',
+                'photo_origin',
                 'description',
-                'address',
                 'comment',
             ]
         );
-        $sql    = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
-        fgetcsv($handle);
-        while (($row = fgetcsv($handle)) !== false) {
-            if (! $row[4] || ! $row[2]) {
-                continue;
-            }
+        $sql        = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
+        foreach (iterateCSV($this->projectDir . '/datasets/courts/judge.csv') as $row) {
             $lineNumber++;
-            $row    = array_map(
+            $row  = array_map(
                 function ($s) {
                     return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
                 },
-                $row
+                array_slice($row, 0, 8)
             );
-            [$lat, $long] = explode(',', $row[4]);
-            $row    = [
-                $row[0],
-                $long,
-                $lat,
-                $row[1],
-                $row[3],
-                $row[2],
-                $row[6],
-            ];
-            $row[1] = str_replace('"', '', $row[1]);
-            $row[2] = str_replace('"', '', $row[2]);
-            $temp   = '(' . implode(',', $row) . ')';
+            $temp = '(' . implode(',', $row) . ')';
             if ($temp === '("")') {
                 throw new \LogicException();
             }
@@ -119,7 +83,6 @@ class LoadCourtsData extends Command
         if (count($rows) > 0) {
             $inserts[] = $sql . implode(',' . PHP_EOL, $rows);
         }
-        fclose($handle);
 
         return $inserts;
     }

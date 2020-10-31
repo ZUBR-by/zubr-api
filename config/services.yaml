@@ -20,7 +20,7 @@ services:
   # this creates a service per class whose id is the fully-qualified class name
   App\:
     resource: '../src/*'
-    exclude: '../src/{DependencyInjection,Entity,Doctrine/Migrations,Tests,Kernel.php}'
+    exclude: '../src/{DependencyInjection,Entity,Doctrine/Migrations,Tests,Kernel.php,functions.php}'
 
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
@@ -64,16 +64,16 @@ services:
   App\Unsubscribe:
     tags: ['controller.service_arguments']
 
-  App\Courts\LoadJudgesData:
+  App\Courts\LoadJudges:
     arguments: ['@doctrine.dbal.courts_connection']
 
-  App\Courts\LoadHistoryData:
+  App\Courts\LoadHistory:
     arguments: ['@doctrine.dbal.courts_connection']
 
   App\Courts\LoadImagesLocal:
     arguments: ['@doctrine.dbal.courts_connection']
 
-  App\Courts\LoadCourtsData:
+  App\Courts\LoadCourts:
     arguments: ['@doctrine.dbal.courts_connection']
 
   App\Decisions\LoadDecisions:
