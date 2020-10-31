@@ -1,0 +1,9 @@
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: update members if needed
+      shell: 'php /api/current/bin/console load:d'
+      when: inventory_hostname in groups['backend']
+      register: update
+    - debug: var=update.stdout_lines
