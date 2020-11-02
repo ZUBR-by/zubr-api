@@ -23,7 +23,7 @@ api_platform:
       client_items_per_page: true
       items_per_page_parameter_name: count
   mapping:
-    paths: ['%kernel.project_dir%/src/Entity', '%kernel.project_dir%/src/Courts/Entity']
+    paths: ['%kernel.project_dir%/src/Elections/Entity', '%kernel.project_dir%/src/Courts/Entity']
   patch_formats:
     json: ['application/merge-patch+json']
   swagger:

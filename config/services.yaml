@@ -25,13 +25,13 @@ services:
   # add more service definitions when explicit configuration is needed
   # please note that last definitions always *replace* previous ones
 
-  App\MapViewFilter: ~
+  App\Elections\MapViewFilter: ~
 
   App\SearchByAllFields: ~
 
-  App\Commission\ContextBuilder:
+  App\Elections\Commission\ContextBuilder:
     decorates: 'api_platform.serializer.context_builder'
-    arguments: [ '@App\Commission\ContextBuilder.inner' ]
+    arguments: [ '@App\Elections\Commission\ContextBuilder.inner' ]
     autoconfigure: false
 
   App\InitializeDatabase: ~
@@ -41,15 +41,15 @@ services:
     arguments: ['@App\SwaggerDecorator.inner']
     autoconfigure: false
 
-  App\Commission\GeneratePoster:
+  App\Elections\Commission\GeneratePoster:
     tags: ['controller.service_arguments']
 
-  App\Commission\PosterRenderer: ~
+  App\Elections\Commission\PosterRenderer: ~
 
-  App\Commission\GeneratePosterWithoutPhoto:
+  App\Elections\Commission\GeneratePosterWithoutPhoto:
     tags: ['controller.service_arguments']
 
-  App\HonestPeople\VerifyObserver:
+  App\Elections\HonestPeople\VerifyObserver:
     tags: ['controller.service_arguments']
 
   App\HelpRequest\CreateRequest:
@@ -76,7 +76,7 @@ services:
   App\Courts\LoadCourts:
     arguments: ['@doctrine.dbal.courts_connection']
 
-  App\Decisions\LoadDecisions:
+  App\Courts\Decisions\LoadDecisions:
     arguments: ['@doctrine.dbal.courts_connection']
 
   'App\Normalizer':

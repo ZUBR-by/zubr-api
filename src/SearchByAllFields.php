@@ -6,9 +6,9 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Courts\Entity\Court;
 use App\Courts\Entity\Judge;
-use App\Entity\Commission;
-use App\Entity\Member;
-use App\Entity\Organization;
+use App\Elections\Entity\Commission;
+use App\Elections\Entity\Member;
+use App\Elections\Entity\Organization;
 use Doctrine\ORM\QueryBuilder;
 
 class SearchByAllFields extends AbstractContextAwareFilter
