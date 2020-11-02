@@ -6,11 +6,12 @@
 /public/bundles/
 /var/
 /vendor/
+/src/Doctrine/Migrations
 /.env
 /infrastructure/.env
 /infrastructure/nginx/ssl
 ###< symfony/framework-bundle ###
-
+/bin/phpunit
 ###> lexik/jwt-authentication-bundle ###
 !config/jwt/
 /config/jwt/*.pem
