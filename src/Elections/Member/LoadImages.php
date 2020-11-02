@@ -62,7 +62,7 @@ TAG
         ]);
         $placeholderURL = 'https://zubr.in/assets/images/user.svg';
         $guzzle         = new Client();
-        $path           = __DIR__ . '/../../datasets/2020/member-*.csv';
+        $path           = __DIR__ . '/../../datasets/elections/2020/member-*.csv';
         $toReplace      = 0;
         $notInAWS      = 0;
         foreach ($members as $member) {

@@ -55,7 +55,7 @@ class LoadImagesLocal extends Command
             ],
         ]);
 
-        $files  = scandir($this->projectDir . '/local/photos');
+        $files  = scandir($this->projectDir . '/local/elections/photos');
         $photos = [];
         foreach ($files as $file) {
             if (in_array($file, ['.', '..'])) {
@@ -89,7 +89,7 @@ class LoadImagesLocal extends Command
                      '07_minsk_foreign',
                  ] as $file
         ) {
-            $path = "$this->projectDir/datasets/2020/member-{$file}.csv";
+            $path = "$this->projectDir/datasets/elections/2020/member-{$file}.csv";
             foreach ($photos as $memberId => $content) {
                 $grep        = "grep -rn ^{$memberId}, $path | cut -f1 -d:";
                 $lineNumber1 = exec($grep);
@@ -104,7 +104,7 @@ class LoadImagesLocal extends Command
         $uploaded = 0;
         $exists = 0;
         foreach ($map as $file => $item) {
-            $path = "$this->projectDir/datasets/2020/member-{$file}.csv";
+            $path = "$this->projectDir/datasets/elections/2020/member-{$file}.csv";
             foreach ($item as $content) {
                 $current = explode(',', exec("sed -n '{$content[2]}p' $path"));
                 if (strpos($current[6], 'members2020') !== false) {
@@ -114,7 +114,7 @@ class LoadImagesLocal extends Command
                     'Bucket'      => $this->bucketMembers,
                     'ContentType' => $content[1],
                     'Key'         => $content[0],
-                    'Body'        => file_get_contents($this->projectDir . '/local/photos/' . $content[0]),
+                    'Body'        => file_get_contents($this->projectDir . '/local/elections/photos/' . $content[0]),
                     'ACL'         => 'public-read',
                 ]);
                 $current[6] = $result['ObjectURL'];
