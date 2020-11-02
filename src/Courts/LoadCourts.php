@@ -10,14 +10,9 @@ use function App\iterateCSV;
 
 class LoadCourts extends Command
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private Connection $connection;
+
+    private string $projectDir;
 
     public function __construct(Connection $connection, string $projectDir)
     {
@@ -27,31 +22,19 @@ class LoadCourts extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         $this->setName('load:courts')->addOption('force');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $this->connection->transactional(function () use ($output, $input) {
             $limit = ($input->getOption('verbose') ? 1 : 10000);
             $this->connection->executeQuery('DELETE FROM court');
-            $inserts = array_merge(
-                $this->prepareInserts('court', $limit),
-            );
+            $inserts = $this->prepareInserts('court', $limit);
             foreach ($inserts as $index => $insert) {
-                try {
-                    $this->connection->executeQuery($insert);
-                } catch (\Throwable $e) {
-                    throw $e;
-                }
+                $this->connection->executeQuery($insert);
             }
         });
 

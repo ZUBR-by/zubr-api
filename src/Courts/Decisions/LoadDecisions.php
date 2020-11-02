@@ -9,33 +9,12 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
-use function App\iterateCSV;
 
 class LoadDecisions extends Command
 {
     private Connection $connection;
 
     private string $projectDir;
-
-    const COURTS = [
-        'Слуцк, раённы'          => '05-018-03-01',
-        'Смалявічы, раённы'      => '05-019-03-01',
-        'Маладзечна'             => '05-014-03-01',
-        'Дзяржынск, раённы'      => '05-008-03-01',
-        'Баранавічы, раённы'     => '01-003-03-01',
-        'Жлобін'                 => '03-009-03-01',
-        'Барысаў'                => '05-005-03-01',
-        'Бабруйск'               => '06-003-03-01',
-        'Ворша'                  => '02-014-03-01',
-        'Сьветлагорск'           => '03-020-03-01',
-        'Докшыцы, Докшыцкі раён' => '02-009-03-01',
-        'Бярозаўка, раённы'      => '01-005-03-01',
-        'Полацак'                => '02-015-03-01',
-        'Ліда'                   => '04-010-03-01',
-        'Нясьвіж, раённы'        => '05-016-03-01',
-        'Салігорск'              => '05-020-03-01',
-        'Ваўкавыск, раённы'      => '04-004-03-01',
-    ];
 
     public function __construct(Connection $connection, string $projectDir)
     {
@@ -45,17 +24,11 @@ class LoadDecisions extends Command
         parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function configure()
     {
         $this->setName('load:decisions')->addOption('force');
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $app     = $this->getApplication();
@@ -72,8 +45,8 @@ class LoadDecisions extends Command
         $command = $app->find('doctrine:database:create');
         $command->run(new ArrayInput(
             [
-                'command' => 'doctrine:database:create',
-                '--connection'    => 'courts',
+                'command'      => 'doctrine:database:create',
+                '--connection' => 'courts',
             ]
         ),
             $output
@@ -130,7 +103,7 @@ class LoadDecisions extends Command
                         JSON_UNESCAPED_UNICODE
                     ),
                     'article'     => $decision['article'],
-                    'court_id'    => $courts[$decision['court']] ?? self::COURTS[$decision['court']] ?? null,
+                    'court_id'    => $courts[$decision['court']] ?? null,
                 ];
                 if ($decision['arrest'] === '' && $decision['fine'] === '') {
                     continue;
@@ -223,14 +196,6 @@ TAG
 
     public function loadCourts()
     {
-        $courts = [];
-        foreach (iterateCSV($this->projectDir . '/datasets/courts/courts_translated.csv') as $row) {
-            if (! $row[1]) {
-                continue;
-            }
-            $courts[str_replace('"', '', $row[1])] = $row[0];
-        }
-
-        return $courts;
+        return json_decode(file_get_contents($this->projectDir . '/datasets/courts/courts_translated.json'), true);
     }
 }
