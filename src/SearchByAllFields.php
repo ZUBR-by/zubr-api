@@ -18,7 +18,7 @@ class SearchByAllFields extends AbstractContextAwareFilter
         Organization::class => ['name', 'description', 'location'],
         Commission::class   => ['name', 'description', 'location'],
         Court::class        => ['name', 'address', 'description'],
-        Judge::class        => ['firstName', 'lastName', 'middleName', 'description'],
+        Judge::class        => ['fullName', 'description'],
     ];
 
     protected function filterProperty(
