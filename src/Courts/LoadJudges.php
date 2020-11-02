@@ -50,9 +50,7 @@ class LoadJudges extends Command
             ', ',
             [
                 'id',
-                'last_name',
-                'first_name',
-                'middle_name',
+                'full_name',
                 'photo_url',
                 'photo_origin',
                 'description',
@@ -66,7 +64,7 @@ class LoadJudges extends Command
                 function ($s) {
                     return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
                 },
-                array_slice($row, 0, 8)
+                array_slice($row, 0, 6)
             );
             $temp = '(' . implode(',', $row) . ')';
             if ($temp === '("")') {

@@ -117,12 +117,12 @@ class LoadDecisions extends Command
                     $judgeName = new TranslatedFullName($decision['judge'], $translations);
                     $judgeDB   = $this->connection->fetchAllAssociative(
                         <<<'TAG'
- SELECT id, first_name, last_name, middle_name
+ SELECT id, full_name
    FROM judge
-  WHERE last_name = :ln
+  WHERE LEFT(full_name, :ln) = :fn
 TAG
                         ,
-                        ['ln' => $judgeName->lastName()]
+                        ['fn' => $judgeName->lastName(), 'ln' => mb_strlen($judgeName->lastName())]
                     );
                     if (! $judgeDB) {
                         $missing[] = $judgeName->toString();
@@ -130,6 +130,13 @@ TAG
                     } else {
                         $judgeId = null;
                         foreach ($judgeDB as $person) {
+
+                            $var = explode(' ', $person['full_name']);
+                            if (!isset($var[1])) {
+                                throw new \Exception($person['full_name']);
+                            }
+                            [$person['last_name'],$person['first_name'], $person['middle_name']] = $var;
+
                             if ($judgeName->hasSameFirstNameFirstLetter($person['first_name'])
                                 || $judgeName->firstName() === $person['first_name']
                                 || $judgeName->firstName() === '') {

@@ -13,7 +13,7 @@ use App\SearchByAllFields;
  *     name="judge",
  *     indexes={
  *          @ORM\Index(
- *              columns={"first_name", "middle_name", "last_name", "description"},
+ *              columns={"full_name", "description"},
  *              flags={"fulltext"}
  *          )
  *     }
@@ -47,21 +47,7 @@ class Judge
      *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
      */
-    private $lastName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
-     */
-    private $firstName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
-     */
-    private $middleName;
+    private $fullName;
 
     /**
      * @var string
@@ -94,21 +80,6 @@ class Judge
         return $this->id;
     }
 
-    public function getLastName() : string
-    {
-        return $this->lastName;
-    }
-
-    public function getFirstName() : string
-    {
-        return $this->firstName;
-    }
-
-    public function getMiddleName() : string
-    {
-        return $this->middleName;
-    }
-
     public function getPhotoUrl() : string
     {
         return $this->photoUrl;
@@ -131,6 +102,6 @@ class Judge
 
     public function getFullName() : string
     {
-        return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
+        return $this->fullName;
     }
 }
