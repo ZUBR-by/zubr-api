@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: frontend
   gather_facts: no
 
   tasks:
