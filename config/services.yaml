@@ -79,6 +79,9 @@ services:
   App\Courts\Decisions\LoadDecisions:
     arguments: ['@doctrine.dbal.courts_connection']
 
+  App\Courts\GenerateContentForHugo:
+    arguments: ['@doctrine.dbal.courts_connection']
+
   'App\Normalizer':
     decorates: 'api_platform.jsonld.normalizer.item'
     arguments: [ '@App\Normalizer.inner' ]

@@ -32,7 +32,3 @@ infrastructure/*.retry
 !infrastructure/credentials
 /infrastructure/credentials/*
 !infrastructure/credentials/.gitkeep
-
-!local
-/local/*
-!local/.gitkeep

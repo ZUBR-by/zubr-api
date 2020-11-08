@@ -22,9 +22,7 @@ pipeline {
         agent {
             dockerfile {
                 filename 'infrastructure/php/gitlab/Dockerfile'
-
             }
-
         }
         steps {
             writeFile file: '.env', text: """
