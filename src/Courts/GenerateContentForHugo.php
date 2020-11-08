@@ -37,7 +37,8 @@ class GenerateContentForHugo extends Command
         );
         $paths = [];
         foreach ($judges as $judge) {
-            $path = $judge['id'] . '.md';
+            $path            = $judge['id'] . '.md';
+            $judge['layout'] = 'judge';
             file_put_contents(
                 $path,
                 json_encode(
@@ -51,6 +52,8 @@ class GenerateContentForHugo extends Command
         $courts = $this->connection->fetchAllAssociative('SELECT * FROM court');
         foreach ($courts as $court) {
             $path = $court['id'] . '.md';
+            unset($court['type']);
+            $court['layout'] = 'court';
             file_put_contents(
                 $path,
                 json_encode(
