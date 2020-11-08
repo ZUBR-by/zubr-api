@@ -7,7 +7,6 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 
 /**
  * @ORM\Table(name="decisions")
@@ -16,11 +15,11 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
  *    collectionOperations={"get"},
  *    itemOperations={"get"}
  * )
- * @ApiFilter(NumericFilter::class, properties={"judge.id"})
  * @ApiFilter(
  *     SearchFilter::class,
  *     properties={
- *         "court.id": "exact"
+ *         "court.id": "exact",
+ *         "judge.id": "exact",
  *     }
  * )
  * */
@@ -174,7 +173,7 @@ class Decision
 
     public function getFullName() : string
     {
-        return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
+        return '';
     }
 
     public function getAftermath() : string
