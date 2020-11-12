@@ -64,6 +64,8 @@ class LoadHistory extends Command
                 'decree_number',
                 'position',
                 'comment',
+                'term',
+                'term_type',
             ]
         );
         $sql     = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
@@ -114,7 +116,7 @@ class LoadHistory extends Command
                     ['fn' => $lname, 'ln' => mb_strlen($lname)]
                 );
                 if (! $judge) {
-                    echo 'History_database: '. $row[self::FULL_NAME] . PHP_EOL;
+                    echo 'History_database: ' . $row[self::FULL_NAME] . PHP_EOL;
                     continue;
                 }
 
@@ -139,7 +141,7 @@ class LoadHistory extends Command
                     $decreeNumber = 'parse_error:' . $row[self::UKAZ];
                 }
                 $row[3] = trim($row[3]);
-                $rows[] = [
+                $tmp    = [
                     $judge['id'],
                     $courtCode,
                     $timestamp,
@@ -148,6 +150,25 @@ class LoadHistory extends Command
                     "'" . $row[self::SET_POSITION] . "'",
                     "'{$row[3]}'",
                 ];
+                switch ($row[3]) {
+                    case '5 лет':
+                        $tmp[6] = '""';
+                        $tmp[]  = 5;
+                        $tmp[]  = '"years"';
+                        break;
+                    case 'бессрочно':
+                        $tmp[6] = '""';
+                        $tmp[] = 'NULL';
+                        $tmp[] = '"indefinitely"';
+                        break;
+                    default:
+                        $tmp[] = 'NULL';
+                        $tmp[] = '"period"';
+                        break;
+                }
+
+                $rows[] = $tmp;
+
                 if ($row[7]) {
                     $courtCodeReleased = $this->connection->fetchOne(
                         'SELECT id FROM court WHERE name = ?',
@@ -165,6 +186,8 @@ class LoadHistory extends Command
                         is_numeric($decreeNumber) ? "'" . $longSpaces($decreeNumber) . "'" : 0,
                         "'{$row[self::SET_POSITION]}'",
                         "'{$row[9]}'",
+                        'NULL',
+                        '"unknown"',
                     ];
                 }
             }
@@ -243,6 +266,8 @@ class LoadHistory extends Command
                     is_numeric($decreeNumber) ? "'" . $longSpaces($decreeNumber) . "'" : 0,
                     "'" . $row[1] . "'",
                     "'{$row[4]}'",
+                    'NULL',
+                    '"unknown"',
                 ];
             }
             $r = array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);

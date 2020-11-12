@@ -1,10 +1,10 @@
 api_platform:
   # The title of the API.
-  title: 'Zubr API'
+  title: 'ZUBR API'
   enable_swagger_ui: true
   enable_re_doc: true
   # The description of the API.
-  description: 'Zubr API documentation'
+  description: 'ZUBR API documentation'
 
   # The version of the API.
   version: '1.0.0'

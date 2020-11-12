@@ -6,6 +6,8 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use App\SearchByAllFields;
+use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
  * @ORM\Table(
  *     name="court",
@@ -38,7 +40,7 @@ class Court
 
     /**
      * @var string
-     *
+     * @Groups({"history"})
      * @ORM\Column(type="string", length=500, nullable=false)
      */
     private $name;
@@ -73,6 +75,7 @@ class Court
      * @ORM\Column(type="string", length=1000, nullable=false, options={"default" : ""})
      */
     private $comment;
+
 
     public function getId() : string
     {
