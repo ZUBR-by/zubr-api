@@ -48,6 +48,13 @@ class Decision
     private $court;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=100, nullable=false, options={"default" : "administrative"})
+     */
+    private $category = 'administrative';
+
+    /**
      * @var Judge|null
      * @ORM\ManyToOne(targetEntity="App\Courts\Entity\Judge")
      * @ORM\JoinColumn(name="judge_id", referencedColumnName="id")
@@ -186,6 +193,11 @@ class Decision
         }
 
         return sprintf('%s б.в.', (int) $this->aftermathAmount);
+    }
+
+    public function getCategory() : string
+    {
+        return $this->category;
     }
 
 }
