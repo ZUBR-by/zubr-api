@@ -139,6 +139,7 @@ class LoadHistory extends Command
                     echo 'parse_error:' . $row[self::UKAZ] . PHP_EOL;
                     $timestamp    = 'null';
                     $decreeNumber = 'parse_error:' . $row[self::UKAZ];
+                    continue;
                 }
                 $row[3] = trim($row[3]);
                 $tmp    = [
@@ -158,8 +159,8 @@ class LoadHistory extends Command
                         break;
                     case 'бессрочно':
                         $tmp[6] = '""';
-                        $tmp[] = 'NULL';
-                        $tmp[] = '"indefinitely"';
+                        $tmp[]  = 'NULL';
+                        $tmp[]  = '"indefinitely"';
                         break;
                     default:
                         $tmp[] = 'NULL';
@@ -240,6 +241,7 @@ class LoadHistory extends Command
 
                 $decreeNumber = null;
                 $timestamp    = null;
+                $row[2]       = str_replace('N', '№', $row[2]);
                 if (strpos($row[2], '№') !== false) {
                     $row[2] = preg_replace('|[^0-9№.]|', '', $row[2]);
                     $chunks = explode('№', $row[2]);
@@ -254,7 +256,7 @@ class LoadHistory extends Command
                     $timestamp    = "'2000-01-01'";
                     $decreeNumber = null;
                 } else {
-                    echo 'parse_error:' . $row[2];
+                    echo 'parse_error:' . $row[2] . PHP_EOL;
                     $timestamp    = 'null';
                     $decreeNumber = 'parse_error:' . $row[2];
                 }

@@ -149,12 +149,17 @@ class Judge
         }
         if (! $history[0]->isReleased()
             && (
-            $history[0]->isIndefinitely()
+                $history[0]->isIndefinitely()
+                || ($history[0]->getTermType() === 'years'
+                    && (new \DateTime()) < $history[0]->getTimestamp()->add(new \DateInterval('P5Y'))
+                )
             )
         ) {
             return [
-                'id'   => $history[0]->getCourt()->getId(),
-                'name' => $history[0]->getCourt()->getName(),
+                'id'        => $history[0]->getCourt()->getId(),
+                'name'      => $history[0]->getCourt()->getName(),
+                'position'  => $history[0]->getPosition(),
+                'timestamp' => $history[0]->getTimestamp()->format(DATE_ATOM),
             ];
         }
         return null;
