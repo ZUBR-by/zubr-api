@@ -133,9 +133,9 @@ class Decision
         return $this->id;
     }
 
-    public function getTimestamp() : ?DateTime
+    public function getTimestamp() : ?string
     {
-        return $this->timestamp;
+        return $this->timestamp->format('d.m.Y');
     }
 
     public function getCourt() : ?Court

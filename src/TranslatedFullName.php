@@ -31,14 +31,12 @@ class TranslatedFullName
 
         $this->lastName  = $translations['last_name'][$this->lastName] ?? strtr($this->lastName,
                 [
-                    'і' => 'и',
-                    'І' => 'И',
                     'ё' => 'е',
                 ]
             );
         $this->firstName = $translations['first_name'][$this->firstName] ?? strtr(
                 $this->firstName,
-                ['і' => 'и', 'І' => 'И', 'ё' => 'е']
+                ['ё' => 'е']
             );
     }
 
