@@ -29,14 +29,10 @@ class TranslatedFullName
         $this->firstName  = $chunks[1] ?? '';
         $this->middleName = $chunks[2] ?? '';
 
-        $this->lastName  = $translations['last_name'][$this->lastName] ?? strtr($this->lastName,
-                [
-                    'ё' => 'е',
-                ]
-            );
+        $this->lastName  = $translations['last_name'][$this->lastName] ?? $this->lastName;
         $this->firstName = $translations['first_name'][$this->firstName] ?? strtr(
                 $this->firstName,
-                ['ё' => 'е']
+                ['і' => 'и', 'І' => 'И', 'ё' => 'е']
             );
     }
 
