@@ -188,7 +188,7 @@ class LoadHistory extends Command
                         "'{$row[self::SET_POSITION]}'",
                         "'{$row[9]}'",
                         'NULL',
-                        '"unknown"',
+                        '""',
                     ];
                 }
             }
@@ -269,7 +269,7 @@ class LoadHistory extends Command
                     "'" . $row[1] . "'",
                     "'{$row[4]}'",
                     'NULL',
-                    '"unknown"',
+                    '""',
                 ];
             }
             $r = array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
