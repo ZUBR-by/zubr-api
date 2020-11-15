@@ -42,7 +42,7 @@ class GenerateContentForHugo extends Command
             ZipArchive::CREATE | ZipArchive::OVERWRITE
         );
         $paths = [];
-        foreach ($judges as $judge) {
+        foreach ($judges as &$judge) {
             $path            = $judge['id'] . '.md';
             $judge['layout'] = 'judge';
             $judge['court']  = $this->em->getRepository(Judge::class)->find($judge['id'])->getCurrentCourt();
@@ -75,17 +75,22 @@ class GenerateContentForHugo extends Command
         }
         $courts = $this->connection->fetchAllAssociative('SELECT * FROM court');
         foreach ($courts as $court) {
-            $court['statistic']['arrests'] = $this->connection->fetchOne(
+            $court['judges']                 = array_values(
+                array_filter($judges, fn($item) => is_array($item['court']) && $item['court']['id'] === $court['id'])
+            );
+            $court['statistic']['arrests']   = (int) $this->connection->fetchOne(
                 'SELECT SUM(aftermath_amount) 
                    FROM decisions 
                   WHERE court_id = ? AND aftermath_type = \'arrest\' AND YEAR(timestamp) = 2020',
                 [$court['id']]
             );
-            $court['statistic']['fines'] = $this->connection->fetchOne(
+            $fines                           = (int) $this->connection->fetchOne(
                 'SELECT SUM(aftermath_amount) FROM decisions WHERE court_id = ? AND aftermath_type = \'fine\' AND YEAR(timestamp) = 2020',
                 [$court['id']]
             );
-            $path                          = $court['id'] . '.md';
+            $court['statistic']['fines_rub'] = 27 * $fines;
+            $court['statistic']['fines']     = $fines;
+            $path                            = $court['id'] . '.md';
             unset($court['type']);
             $court['layout'] = 'court';
             file_put_contents(
@@ -101,7 +106,7 @@ class GenerateContentForHugo extends Command
 
         $zip->close();
 
-        array_walk($paths, fn(string $path) => unlink($path));
+//        array_walk($paths, fn(string $path) => unlink($path));
 
         return 0;
     }
