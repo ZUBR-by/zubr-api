@@ -19,6 +19,16 @@ class GenerateContentForHugo extends Command
 
     private EntityManagerInterface $em;
 
+    private const REGIONS = [
+        '01' => 'Брестская область',
+        '02' => 'Витебская область',
+        '03' => 'Гомельская область',
+        '04' => 'Гродненская область',
+        '05' => 'Минская область',
+        '06' => 'Могилевская область',
+        '07' => 'Минск',
+    ];
+
     public function __construct(EntityManagerInterface $entityManager, string $projectDir)
     {
         $this->connection = $entityManager->getConnection();
@@ -90,6 +100,7 @@ class GenerateContentForHugo extends Command
             );
             $court['statistic']['fines_rub'] = 27 * $fines;
             $court['statistic']['fines']     = $fines;
+            $court['region']                 = self::REGIONS[substr($court['id'], 0, 2)];
             $path                            = $court['id'] . '.md';
             unset($court['type']);
             $court['layout'] = 'court';
