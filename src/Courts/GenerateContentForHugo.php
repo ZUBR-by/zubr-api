@@ -53,10 +53,10 @@ class GenerateContentForHugo extends Command
         );
         $paths = [];
         foreach ($judges as &$judge) {
-            $path            = $judge['id'] . '.md';
-            $judge['layout'] = 'judge';
-            $judge['court']  = $this->em->getRepository(Judge::class)->find($judge['id'])->getCurrentCourt();
-            $judge['career'] = array_map(
+            $path                            = $judge['id'] . '.md';
+            $judge['layout']                 = 'judge';
+            $judge['court']                  = $this->em->getRepository(Judge::class)->find($judge['id'])->getCurrentCourt();
+            $judge['career']                 = array_map(
                 fn(JudgeCareer $item) => [
                     'type'      => $item->getType(),
                     'timestamp' => $item->getTimestamp()->format(DATE_ATOM),
@@ -73,6 +73,20 @@ class GenerateContentForHugo extends Command
                     ['timestamp' => 'desc', 'type' => 'asc']
                 )
             );
+            $judge['statistic']['arrests']   = (int) $this->connection->fetchOne(
+                'SELECT SUM(aftermath_amount) 
+                   FROM decisions 
+                  WHERE judge_id = ? AND aftermath_type = \'arrest\' AND YEAR(timestamp) = 2020',
+                [$judge['id']]
+            );
+            $fines                           = (int) $this->connection->fetchOne(
+                'SELECT SUM(aftermath_amount) 
+                   FROM decisions 
+                  WHERE judge_id = ? AND aftermath_type = \'fine\' AND YEAR(timestamp) = 2020',
+                [$judge['id']]
+            );
+            $judge['statistic']['fines_rub'] = 27 * $fines;
+            $judge['statistic']['fines']     = $fines;
             file_put_contents(
                 $path,
                 json_encode(
