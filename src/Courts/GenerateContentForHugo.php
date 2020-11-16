@@ -104,7 +104,10 @@ class GenerateContentForHugo extends Command
         $courts = $this->connection->fetchAllAssociative('SELECT * FROM court');
         foreach ($courts as $court) {
             $court['judges']                 = array_values(
-                array_filter($judges, fn($item) => is_array($item['court']) && $item['court']['id'] === $court['id'])
+                array_filter(
+                    $judges,
+                    fn($item) => is_array($item['court']) && $item['court']['id'] === $court['id']
+                )
             );
             $court['statistic']['arrests']   = (int) $this->connection->fetchOne(
                 'SELECT SUM(aftermath_amount) 

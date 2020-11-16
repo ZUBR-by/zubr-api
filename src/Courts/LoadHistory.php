@@ -107,13 +107,12 @@ class LoadHistory extends Command
                 }
                 $chunks = explode(' ', $row[self::FULL_NAME]);
                 if (! isset($chunks[2])) {
-                    echo $row[self::FULL_NAME] . PHP_EOL;
+                    echo 'Invalid:' . $row[self::FULL_NAME] . PHP_EOL;
                     continue;
                 }
-                [$lname, $fname] = $chunks;
                 $judge = $this->connection->fetchAssociative(
-                    'SELECT * FROM judge WHERE LEFT(full_name, :ln) = :fn',
-                    ['fn' => $lname, 'ln' => mb_strlen($lname)]
+                    'SELECT * FROM judge WHERE full_name = :fn',
+                    ['fn' => $row[self::FULL_NAME]]
                 );
                 if (! $judge) {
                     echo 'History_database: ' . $row[self::FULL_NAME] . PHP_EOL;
@@ -137,8 +136,6 @@ class LoadHistory extends Command
                     $decreeNumber = null;
                 } else {
                     echo 'parse_error:' . $row[self::UKAZ] . PHP_EOL;
-                    $timestamp    = 'null';
-                    $decreeNumber = 'parse_error:' . $row[self::UKAZ];
                     continue;
                 }
                 $row[3] = trim($row[3]);
