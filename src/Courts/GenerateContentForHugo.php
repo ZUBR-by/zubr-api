@@ -63,7 +63,7 @@ class GenerateContentForHugo extends Command
             $judge['career']                 = array_map(
                 fn(JudgeCareer $item) => [
                     'type'      => $item->getType(),
-                    'timestamp' => $item->getTimestamp()->format(DATE_ATOM),
+                    'timestamp' => $item->getTimestamp()->format('d.m.Y'),
                     'term'      => $item->getTerm(),
                     'term_type' => $item->getTermType(),
                     'comment'   => $item->getComment(),

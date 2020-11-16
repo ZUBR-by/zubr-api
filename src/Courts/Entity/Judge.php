@@ -160,7 +160,7 @@ class Judge
                 'id'        => $history[0]->getCourt()->getId(),
                 'name'      => $history[0]->getCourt()->getName(),
                 'position'  => $history[0]->getPosition(),
-                'timestamp' => $history[0]->getTimestamp()->format(DATE_ATOM),
+                'timestamp' => $history[0]->getTimestamp()->format('d.m.Y'),
                 'regions'   => $regions[substr($history[0]->getCourt()->getId(), 0, 2)] ?? '',
             ];
         }
