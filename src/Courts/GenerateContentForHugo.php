@@ -55,7 +55,11 @@ class GenerateContentForHugo extends Command
         foreach ($judges as &$judge) {
             $path                            = $judge['id'] . '.md';
             $judge['layout']                 = 'judge';
-            $judge['court']                  = $this->em->getRepository(Judge::class)->find($judge['id'])->getCurrentCourt();
+            $judge['title']                  = 'Cудья ' . $judge['full_name'];
+            $judge['court']                  = $this->em
+                ->getRepository(Judge::class)
+                ->find($judge['id'])
+                ->getCurrentCourt(self::REGIONS);
             $judge['career']                 = array_map(
                 fn(JudgeCareer $item) => [
                     'type'      => $item->getType(),
@@ -109,11 +113,14 @@ class GenerateContentForHugo extends Command
                 [$court['id']]
             );
             $fines                           = (int) $this->connection->fetchOne(
-                'SELECT SUM(aftermath_amount) FROM decisions WHERE court_id = ? AND aftermath_type = \'fine\' AND YEAR(timestamp) = 2020',
+                'SELECT SUM(aftermath_amount) 
+                   FROM decisions 
+                  WHERE court_id = ? AND aftermath_type = \'fine\' AND YEAR(timestamp) = 2020',
                 [$court['id']]
             );
             $court['statistic']['fines_rub'] = 27 * $fines;
             $court['statistic']['fines']     = $fines;
+            $court['title']                  = $court['name'];
             $court['region']                 = self::REGIONS[substr($court['id'], 0, 2)];
             $path                            = $court['id'] . '.md';
             unset($court['type']);

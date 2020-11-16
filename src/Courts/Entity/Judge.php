@@ -140,18 +140,19 @@ class Judge
     /**
      * @Groups("get")
      */
-    public function getCurrentCourt() : ?array
+    public function getCurrentCourt(array $regions = []) : ?array
     {
         /** @var JudgeCareer[] $history */
         $history = $this->career->toArray();
         if (! $history) {
             return null;
         }
+        $copy = clone $history[0]->getTimestamp();
         if (! $history[0]->isReleased()
             && (
                 $history[0]->isIndefinitely()
                 || ($history[0]->getTermType() === 'years'
-                    && (new \DateTime()) < $history[0]->getTimestamp()->add(new \DateInterval('P5Y'))
+                    && (new \DateTime()) < $copy->add(new \DateInterval('P5Y'))
                 )
             )
         ) {
@@ -160,6 +161,7 @@ class Judge
                 'name'      => $history[0]->getCourt()->getName(),
                 'position'  => $history[0]->getPosition(),
                 'timestamp' => $history[0]->getTimestamp()->format(DATE_ATOM),
+                'regions'   => $regions[substr($history[0]->getCourt()->getId(), 0, 2)] ?? '',
             ];
         }
         return null;
