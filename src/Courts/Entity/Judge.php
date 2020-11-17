@@ -157,11 +157,21 @@ class Judge
             )
         ) {
             return [
-                'id'        => $history[0]->getCourt()->getId(),
-                'name'      => $history[0]->getCourt()->getName(),
-                'position'  => $history[0]->getPosition(),
-                'timestamp' => $history[0]->getTimestamp()->format('d.m.Y'),
-                'regions'   => $regions[substr($history[0]->getCourt()->getId(), 0, 2)] ?? '',
+                'id'          => $history[0]->getCourt()->getId(),
+                'name'        => $history[0]->getCourt()->getName(),
+                'position'    => $history[0]->getPosition(),
+                'termType'    => $history[0]->getTermType(),
+                'term'        => $history[0]->getTerm(),
+                'description' => sprintf(
+                    'c %s, %s по указу %s',
+                    $history[0]->getTimestamp()->format('d.m.Y'),
+                    $history[0]->getTermType() === 'indefinitely'
+                        ? 'бессрочно'
+                        : 'на срок ' . $history[0]->getTerm() . ' лет',
+                    $history[0]->getDecreeNumber()
+                ),
+                'timestamp'   => $history[0]->getTimestamp()->format('d.m.Y'),
+                'regions'     => $regions[substr($history[0]->getCourt()->getId(), 0, 2)] ?? '',
             ];
         }
         return null;

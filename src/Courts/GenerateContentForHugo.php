@@ -98,11 +98,11 @@ class GenerateContentForHugo extends Command
                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
                 )
             );
-            $zip->addFile($path, 'judge/' . $path);
+            $zip->addFile($path, 'content/judge/' . $path);
             $paths[] = $path;
         }
         $courts = $this->connection->fetchAllAssociative('SELECT * FROM court');
-        foreach ($courts as $court) {
+        foreach ($courts as &$court) {
             $court['judges']                 = array_values(
                 array_filter(
                     $judges,
@@ -135,12 +135,23 @@ class GenerateContentForHugo extends Command
                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
                 )
             );
-            $zip->addFile($path, 'court/' . $path);
+            $zip->addFile($path, 'content/court/' . $path);
             $paths[] = $path;
         }
-
+        $keyed = [];
+        foreach ($courts as $court) {
+            $keyed[$court['id']] = $court;
+        }
+        file_put_contents(
+            'courts.json',
+            json_encode(
+                $keyed,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+            )
+        );
+        $zip->addFile('courts.json', 'data/courts.json');
         $zip->close();
-
+        $paths[] = 'courts.json';
 //        array_walk($paths, fn(string $path) => unlink($path));
 
         return 0;
