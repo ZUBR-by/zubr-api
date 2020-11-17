@@ -45,22 +45,19 @@ class GenerateContentForHugo extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $judges = $this->connection->fetchAllAssociative('SELECT * FROM judge');
-        $zip    = new ZipArchive();
+        /** @var Judge[] $judgesList */
+        $judgesList = $this->em->getRepository(Judge::class)->findAll();
+        $zip        = new ZipArchive();
         $zip->open(
             $this->projectDir . '/public/content.zip',
             ZipArchive::CREATE | ZipArchive::OVERWRITE
         );
-        $paths = [];
-        foreach ($judges as &$judge) {
-            $path                            = $judge['id'] . '.md';
-            $judge['layout']                 = 'judge';
-            $judge['title']                  = 'Cудья ' . $judge['full_name'];
-            $judge['court']                  = $this->em
-                ->getRepository(Judge::class)
-                ->find($judge['id'])
-                ->getCurrentCourt(self::REGIONS);
-            $judge['career']                 = array_map(
+        $paths  = [];
+        $judges = [];
+        foreach ($judgesList as $judge) {
+            $array           = $judge->toMarkdownJson();
+            $path            = $array['id'] . '.md';
+            $array['career'] = array_map(
                 fn(JudgeCareer $item) => [
                     'type'      => $item->getType(),
                     'timestamp' => $item->getTimestamp()->format('d.m.Y'),
@@ -73,28 +70,15 @@ class GenerateContentForHugo extends Command
                     ],
                 ],
                 $this->em->getRepository(JudgeCareer::class)->findBy(
-                    ['judge' => $judge['id']],
+                    ['judge' => $judge->getId()],
                     ['timestamp' => 'desc', 'type' => 'asc']
                 )
             );
-            $judge['statistic']['arrests']   = (int) $this->connection->fetchOne(
-                'SELECT SUM(aftermath_amount) 
-                   FROM decisions 
-                  WHERE judge_id = ? AND aftermath_type = \'arrest\' AND YEAR(timestamp) = 2020',
-                [$judge['id']]
-            );
-            $fines                           = (int) $this->connection->fetchOne(
-                'SELECT SUM(aftermath_amount) 
-                   FROM decisions 
-                  WHERE judge_id = ? AND aftermath_type = \'fine\' AND YEAR(timestamp) = 2020',
-                [$judge['id']]
-            );
-            $judge['statistic']['fines_rub'] = 27 * $fines;
-            $judge['statistic']['fines']     = $fines;
+            $judges[]        = $array;
             file_put_contents(
                 $path,
                 json_encode(
-                    $judge,
+                    $array,
                     JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
                 )
             );
@@ -142,7 +126,6 @@ class GenerateContentForHugo extends Command
         foreach ($courts as $court) {
             $keyed[$court['id']] = $court;
         }
-
         file_put_contents(
             'courts.json',
             json_encode(
@@ -151,6 +134,20 @@ class GenerateContentForHugo extends Command
             )
         );
         $zip->addFile('courts.json', 'data/courts.json');
+
+        $keyed = [];
+        foreach ($judges as $judge) {
+            $keyed[$judge['id']] = $judge;
+        }
+
+        file_put_contents(
+            'judges.json',
+            json_encode(
+                $keyed,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+            )
+        );
+        $zip->addFile('judges.json', 'data/judges.json');
         $zip->close();
         $paths[] = 'courts.json';
 //        array_walk($paths, fn(string $path) => unlink($path));

@@ -190,7 +190,7 @@ class Decision
 
     public function getFullName() : string
     {
-        return '';
+        return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
     }
 
     public function getAftermath() : string

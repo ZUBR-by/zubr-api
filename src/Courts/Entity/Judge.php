@@ -145,10 +145,24 @@ class Judge
         return $this->fullName;
     }
 
+    public function toMarkdownJson() : array
+    {
+        return [
+            'id'            => $this->id,
+            'statistics'    => $this->getStatistic(),
+            'fullName'      => $this->fullName,
+            'career'        => $this->career,
+            'layout'        => 'judge',
+            'title'         => 'Судья ' . $this->fullName,
+            'court'         => $this->getCurrentCourt(),
+            'previousCourt' => $this->getPreviousCourt(),
+        ];
+    }
+
     /**
      * @Groups("get")
      */
-    public function getCurrentCourt(array $regions = []) : ?array
+    public function getCurrentCourt() : ?array
     {
         /** @var JudgeCareer[] $history */
         $history = $this->career->toArray();
@@ -179,7 +193,6 @@ class Judge
                     $history[0]->getDecreeNumber()
                 ),
                 'timestamp'   => $history[0]->getTimestamp()->format('d.m.Y'),
-                'regions'     => $regions[substr($history[0]->getCourt()->getId(), 0, 2)] ?? '',
             ];
         }
         return null;
@@ -218,25 +231,39 @@ class Judge
      */
     public function getStatistic() : array
     {
-        $fines   = 0;
-        $arrests = 0;
-        $count   = 0;
+        $fines    = 0;
+        $finesRub = 0;
+        $arrests  = 0;
+        $count    = 0;
         /** @var Decision[] $decisions */
         $decisions = $this->decisions->toArray();
         foreach ($decisions as $decision) {
-            if ($decision->timestamp()->format('Y') !== '2020') {
-                continue;
-            }
             $count++;
             if ($decision->getAftermathType() === 'arrest') {
                 $arrests += $decision->getAftermathAmount();
                 continue;
             }
-            $fines += $decision->getAftermathAmount();
+            $rate = 0;
+            switch ($decision->timestamp()->format('Y')) {
+                case '2020':
+                    $rate = 27;
+                    break;
+                case '2019':
+                    $rate = 25.5;
+                    break;
+                case '2018':
+                    $rate = 24.5;
+                    break;
+                case '2017':
+                    $rate = 23;
+                    break;
+            }
+            $finesRub += $rate * $decision->getAftermathAmount();
+            $fines    += $decision->getAftermathAmount();
         }
         return [
             'fines'     => $fines,
-            'fines_rub' => $fines * 27,
+            'fines_rub' => $finesRub,
             'arrests'   => $arrests,
             'count'     => $count,
         ];
