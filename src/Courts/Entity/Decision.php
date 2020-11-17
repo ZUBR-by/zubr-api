@@ -143,6 +143,11 @@ class Decision
         return $this->timestamp->format('d.m.Y');
     }
 
+    public function timestamp() : DateTime
+    {
+        return $this->timestamp;
+    }
+
     public function getCourt() : ?Court
     {
         return $this->court;

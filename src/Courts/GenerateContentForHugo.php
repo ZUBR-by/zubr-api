@@ -142,6 +142,7 @@ class GenerateContentForHugo extends Command
         foreach ($courts as $court) {
             $keyed[$court['id']] = $court;
         }
+
         file_put_contents(
             'courts.json',
             json_encode(

@@ -84,9 +84,17 @@ class Judge
      */
     private $career;
 
+    /**
+     * @var Decision|null
+     * @ORM\OneToMany (targetEntity="App\Courts\Entity\Decision", mappedBy="judge")
+     * @ORM\OrderBy({"timestamp" = "DESC"})
+     */
+    private $decisions;
+
     public function __construct()
     {
-        $this->career = new ArrayCollection();
+        $this->career    = new ArrayCollection();
+        $this->decisions = new ArrayCollection();
     }
 
     /**
@@ -203,5 +211,34 @@ class Judge
             ];
         }
         return null;
+    }
+
+    /**
+     * @Groups("get")
+     */
+    public function getStatistic() : array
+    {
+        $fines   = 0;
+        $arrests = 0;
+        $count   = 0;
+        /** @var Decision[] $decisions */
+        $decisions = $this->decisions->toArray();
+        foreach ($decisions as $decision) {
+            if ($decision->timestamp()->format('Y') !== '2020') {
+                continue;
+            }
+            $count++;
+            if ($decision->getAftermathType() === 'arrest') {
+                $arrests += $decision->getAftermathAmount();
+                continue;
+            }
+            $fines += $decision->getAftermathAmount();
+        }
+        return [
+            'fines'     => $fines,
+            'fines_rub' => $fines * 27,
+            'arrests'   => $arrests,
+            'count'     => $count,
+        ];
     }
 }
