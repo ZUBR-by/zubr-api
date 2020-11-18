@@ -31,7 +31,7 @@ class LoadJudges extends Command
         $this->connection->transactional(function () use ($output, $input) {
             $limit = ($input->getOption('verbose') ? 1 : 10000);
             $this->connection->executeQuery('DELETE FROM judge');
-            $inserts = $this->prepareInserts('judge', $limit);
+            $inserts = array_merge($this->prepareInserts('judge', $limit), $this->prepareInsertsTag('judge_tag', $limit));
             foreach ($inserts as $index => $insert) {
                 $this->connection->executeQuery($insert);
             }
@@ -65,6 +65,46 @@ class LoadJudges extends Command
                     return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
                 },
                 array_slice($row, 0, 6)
+            );
+            $temp = '(' . implode(',', $row) . ')';
+            if ($temp === '("")') {
+                throw new \LogicException();
+            }
+            $rows[] = $temp;
+            if ($rowCounter === $limit) {
+                $inserts[]  = $sql . implode(',' . PHP_EOL, $rows);
+                $rows       = [];
+                $rowCounter = 0;
+            }
+            $rowCounter++;
+        }
+        if (count($rows) > 0) {
+            $inserts[] = $sql . implode(',' . PHP_EOL, $rows);
+        }
+
+        return $inserts;
+    }
+    private function prepareInsertsTag(string $dataset, int $limit) : array
+    {
+        $inserts    = [];
+        $rows       = [];
+        $rowCounter = 0;
+        $lineNumber = 0;
+        $fields     = implode(
+            ', ',
+            [
+                'judge_id',
+                'tag',
+            ]
+        );
+        $sql        = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
+        foreach (iterateCSV($this->projectDir . '/datasets/courts/judge_tag.csv') as $row) {
+            $lineNumber++;
+            $row  = array_map(
+                function ($s) {
+                    return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
+                },
+                $row
             );
             $temp = '(' . implode(',', $row) . ')';
             if ($temp === '("")') {

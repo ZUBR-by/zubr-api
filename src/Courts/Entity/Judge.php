@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\SearchByAllFields;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
 /**
  * @ORM\Table(
@@ -25,12 +26,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *    collectionOperations={"get"={"normalization_context"={"groups"="get"}}},
  *    itemOperations={"get"={"normalization_context"={"groups"="get"}}}
  * )
+ *
  * @ApiFilter(SearchByAllFields::class)
  * @ApiFilter(
  *     SearchFilter::class,
  *     properties={
- *         "comment": "exact"
+ *         "comment": "exact",
+ *         "tags.tag": "exact"
  *     }
+ * )
+ * @ApiFilter(
+ *     OrderFilter::class,
+ *     properties={"tags.tag"}, arguments={"orderParameterName"="sort"}
  * )
  * */
 class Judge
@@ -91,10 +98,17 @@ class Judge
      */
     private $decisions;
 
+    /**
+     * @var ArrayCollection|null
+     * @ORM\OneToMany (targetEntity="App\Courts\Entity\JudgeTag", mappedBy="judge")
+     */
+    private $tags;
+
     public function __construct()
     {
         $this->career    = new ArrayCollection();
         $this->decisions = new ArrayCollection();
+        $this->tags      = new ArrayCollection();
     }
 
     /**
@@ -267,5 +281,20 @@ class Judge
             'arrests'   => $arrests,
             'count'     => $count,
         ];
+    }
+
+    /**
+     * @Groups("get")
+     */
+    public function getTags() : array
+    {
+        $array = [];
+        /** @var JudgeTag[] $tags */
+        $tags = $this->tags->toArray();
+        foreach ($tags as $item) {
+            $array[] = $item->getTag();
+        }
+
+        return $array;
     }
 }
