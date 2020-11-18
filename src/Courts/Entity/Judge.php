@@ -190,22 +190,26 @@ class Judge
                 || ($history[0]->getTermType() === 'years'
                     && (new \DateTime()) < $copy->add(new \DateInterval('P5Y'))
                 )
+                || $history[0]->getTermType() === 'period'
             )
         ) {
+            $line = 'c ' . $history[0]->getTimestamp()->format('d.m.Y');
+            if ($history[0]->getTermType() === 'indefinitely') {
+                $line .= ', бессрочно';
+            } elseif ($history[0]->getTermType() === 'years') {
+                $line .= ', на срок ' . $history[0]->getTerm() . ' лет';
+            } else {
+                $line .= ', ' . $history[0]->getComment();
+            }
+            $line .= ', по указу ' . $history[0]->getDecreeNumber();
+
             return [
                 'id'          => $history[0]->getCourt()->getId(),
                 'name'        => $history[0]->getCourt()->getName(),
                 'position'    => $history[0]->getPosition(),
                 'termType'    => $history[0]->getTermType(),
                 'term'        => $history[0]->getTerm(),
-                'description' => sprintf(
-                    'c %s, %s по указу %s',
-                    $history[0]->getTimestamp()->format('d.m.Y'),
-                    $history[0]->getTermType() === 'indefinitely'
-                        ? 'бессрочно'
-                        : 'на срок ' . $history[0]->getTerm() . ' лет',
-                    $history[0]->getDecreeNumber()
-                ),
+                'description' => $line,
                 'timestamp'   => $history[0]->getTimestamp()->format('d.m.Y'),
             ];
         }
