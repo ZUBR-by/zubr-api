@@ -30,6 +30,7 @@ class LoadJudges extends Command
     {
         $this->connection->transactional(function () use ($output, $input) {
             $limit = ($input->getOption('verbose') ? 1 : 10000);
+            $this->connection->executeQuery('DELETE FROM judge_tag');
             $this->connection->executeQuery('DELETE FROM judge');
             $inserts = array_merge($this->prepareInserts('judge', $limit), $this->prepareInsertsTag('judge_tag', $limit));
             foreach ($inserts as $index => $insert) {
