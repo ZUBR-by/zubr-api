@@ -72,14 +72,16 @@ class LoadHistory extends Command
 
         $all           = [];
         $missingCourts = [];
-        $parse         = function ($dataset) use (&$missingCourts, $limit, $sql) : array {
+        $parse         = function ($dataset) use (&$missingCourts, $limit, $sql, $output) : array {
 
             $eol        = fn($value) => str_replace("\n", ' ', $value);
             $longSpaces = fn($value) => preg_replace("/\s\s+/", ' ', $value);
             $allSpaces  = fn($value) => str_replace(' ', '', $value);
             $rows       = [];
             $courtName  = null;
+            $counter = 0;
             foreach (iterateCSV($this->projectDir . '/datasets/courts/history/' . $dataset . '.csv') as $row) {
+                $counter++;
                 if (! array_filter($row)) {
                     continue;
                 }
@@ -107,7 +109,7 @@ class LoadHistory extends Command
                 }
                 $chunks = explode(' ', $row[self::FULL_NAME]);
                 if (! isset($chunks[2])) {
-                    echo 'Invalid:' . $row[self::FULL_NAME] . PHP_EOL;
+                    $output->writeln('Invalid:' . $row[self::FULL_NAME] );
                     continue;
                 }
                 $judge = $this->connection->fetchAssociative(
@@ -115,7 +117,7 @@ class LoadHistory extends Command
                     ['fn' => $row[self::FULL_NAME]]
                 );
                 if (! $judge) {
-                    echo 'History_database: ' . $row[self::FULL_NAME] . PHP_EOL;
+                    $output->writeln('History_database: ' . $row[self::FULL_NAME]);
                     continue;
                 }
 
@@ -129,13 +131,13 @@ class LoadHistory extends Command
                         $decreeNumber = $allSpaces($chunks[1]);
                     } catch (Throwable $e) {
                         $timestamp = 'null';
-                        echo $e->getMessage() . PHP_EOL;
+                        $output->writeln('Error: ' . $e->getMessage());
                     }
                 } elseif ($row[self::UKAZ] === '') {
                     $timestamp    = "'2000-01-01'";
                     $decreeNumber = null;
                 } else {
-                    echo 'parse_error:' . $row[self::UKAZ] . PHP_EOL;
+                    $output->writeln('parse_error:' . $row[self::UKAZ]);
                     continue;
                 }
                 $row[3] = trim($row[3]);
@@ -173,7 +175,7 @@ class LoadHistory extends Command
                         [$row[7]]
                     );
                     if (! $courtCodeReleased) {
-                        echo $dataset . ':' . $row[7] . PHP_EOL;
+                        $output->writeln($dataset . ':' . $row[7] . ':' . $counter);
                         continue;
                     }
                     $rows[] = [
@@ -189,9 +191,8 @@ class LoadHistory extends Command
                     ];
                 }
             }
-            $r = array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
 
-            return $r;
+            return array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
         };
 
         foreach (['07-capital', '06-mogilev', '05-minsk', '04-grodno', '03-gomel', '02-vitebsk', '01-brest'] as $file) {
@@ -201,7 +202,7 @@ class LoadHistory extends Command
             $inserts[] = $sql . implode(',' . PHP_EOL, $all);
         }
 
-        $removed = (function () use (&$missingCourts, $limit, $sql) {
+        $removed = (function () use (&$missingCourts, $limit, $sql, $output) {
             $eol        = fn($value) => str_replace("\n", ' ', $value);
             $allSpaces  = fn($value) => str_replace(' ', '', $value);
             $longSpaces = fn($value) => preg_replace("/\s\s+/", ' ', $value);
@@ -223,7 +224,7 @@ class LoadHistory extends Command
                 }
                 $chunks = explode(' ', $row[0]);
                 if (! isset($chunks[2])) {
-                    echo $row[0] . PHP_EOL;
+                    $output->writeln('FullName: ' . $row[0]);
                     continue;
                 }
                 [$lname, $fname] = $chunks;
@@ -232,7 +233,7 @@ class LoadHistory extends Command
                     ['fn' => $lname, 'ln' => mb_strlen($lname)]
                 );
                 if (! $judge) {
-                    echo $row[0] . PHP_EOL;
+                    $output->writeln('not_found_judge: ' . $row[0]);
                     continue;
                 }
 
@@ -247,13 +248,13 @@ class LoadHistory extends Command
                         $decreeNumber = $allSpaces($chunks[1]);
                     } catch (Throwable $e) {
                         $timestamp = 'null';
-                        echo $e->getMessage() . PHP_EOL;
+                        $output->writeln('Error' . $e->getMessage());
                     }
                 } elseif ($row[2] === '') {
                     $timestamp    = "'2000-01-01'";
                     $decreeNumber = null;
                 } else {
-                    echo 'parse_error:' . $row[2] . PHP_EOL;
+                    $output->writeln('parse_error:' . $row[2]);
                     $timestamp    = 'null';
                     $decreeNumber = 'parse_error:' . $row[2];
                 }
@@ -269,9 +270,8 @@ class LoadHistory extends Command
                     '""',
                 ];
             }
-            $r = array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
 
-            return $r;
+            return array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
         })();
         $all     = array_merge($all, $removed);
 
