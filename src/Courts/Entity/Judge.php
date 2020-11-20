@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\SearchByAllFields;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use App\Courts\JudgeSortFilter;
 
 /**
  * @ORM\Table(
@@ -36,8 +36,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  *     }
  * )
  * @ApiFilter(
- *     OrderFilter::class,
- *     properties={"tags.tag"}, arguments={"orderParameterName"="sort"}
+ *     JudgeSortFilter::class
  * )
  * */
 class Judge
@@ -99,8 +98,8 @@ class Judge
     private $decisions;
 
     /**
-     * @var ArrayCollection|null
-     * @ORM\OneToMany (targetEntity="App\Courts\Entity\JudgeTag", mappedBy="judge")
+     * @var array
+     * @ORM\Column(type="json", nullable=false, options={"default" : "[]"})
      */
     private $tags;
 
@@ -108,7 +107,6 @@ class Judge
     {
         $this->career    = new ArrayCollection();
         $this->decisions = new ArrayCollection();
-        $this->tags      = new ArrayCollection();
     }
 
     /**
@@ -292,13 +290,6 @@ class Judge
      */
     public function getTags() : array
     {
-        $array = [];
-        /** @var JudgeTag[] $tags */
-        $tags = $this->tags->toArray();
-        foreach ($tags as $item) {
-            $array[] = $item->getTag();
-        }
-
-        return $array;
+        return $this->tags;
     }
 }

@@ -7,6 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function App\iterateCSV;
+use function GuzzleHttp\json_encode;
 
 class LoadJudges extends Command
 {
@@ -32,7 +33,8 @@ class LoadJudges extends Command
             $limit = ($input->getOption('verbose') ? 1 : 10000);
             $this->connection->executeQuery('DELETE FROM judge_tag');
             $this->connection->executeQuery('DELETE FROM judge');
-            $inserts = array_merge($this->prepareInserts('judge', $limit), $this->prepareInsertsTag('judge_tag', $limit));
+            $inserts = array_merge($this->prepareInserts('judge', $limit),
+                $this->prepareInsertsTag('judge_tag', $limit));
             foreach ($inserts as $index => $insert) {
                 $this->connection->executeQuery($insert);
             }
@@ -56,18 +58,28 @@ class LoadJudges extends Command
                 'photo_origin',
                 'description',
                 'comment',
+                'tags',
             ]
         );
         $sql        = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
+
+        $tags = [];
+        foreach (iterateCSV($this->projectDir . '/datasets/courts/judge_tag.csv') as [$judge, $tagsString]) {
+            $tmp = explode('|', $tagsString);
+            sort($tmp);
+            $tags[$judge] = $tmp;
+        }
         foreach (iterateCSV($this->projectDir . '/datasets/courts/judge.csv') as $row) {
             $lineNumber++;
-            $row  = array_map(
+            $id    = (int) ($row[0]);
+            $row   = array_map(
                 function ($s) {
                     return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
                 },
                 array_slice($row, 0, 6)
             );
-            $temp = '(' . implode(',', $row) . ')';
+            $row[] = isset($tags[$id]) ? '\'' . json_encode($tags[$id]) . '\'' : '"[]"';
+            $temp  = '(' . implode(',', $row) . ')';
             if ($temp === '("")') {
                 throw new \LogicException();
             }
@@ -85,6 +97,7 @@ class LoadJudges extends Command
 
         return $inserts;
     }
+
     private function prepareInsertsTag(string $dataset, int $limit) : array
     {
         $inserts    = [];

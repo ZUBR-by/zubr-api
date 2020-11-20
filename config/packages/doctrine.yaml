@@ -51,3 +51,4 @@ doctrine:
                     string_functions:
                         MATCH_AGAINST: App\Doctrine\MatchAgainst
                         JSON_CONTAINS: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonContains
+                        JSON_LENGTH: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Mysql\JsonLength
