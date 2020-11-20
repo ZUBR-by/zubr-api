@@ -85,28 +85,24 @@ class GenerateContentForHugo extends Command
             $zip->addFile($path, 'content/judge/' . $path);
             $paths[] = $path;
         }
-        $courts = $this->connection->fetchAllAssociative('SELECT * FROM court');
+        $courts   = $this->connection->fetchAllAssociative('SELECT * FROM court');
+        $location = [];
         foreach ($courts as &$court) {
+            $region = substr($court['id'], 0, 2);
+            if (! isset($location[$region])) {
+                $location[$region] = [];
+            }
+            $location[$region][$court['id']] = [
+                'name'      => $court['name'],
+                'longitude' => (float) $court['longitude'],
+                'latitude'  => (float) $court['latitude'],
+            ];
             $court['judges']                 = array_values(
                 array_filter(
                     $judges,
                     fn($item) => is_array($item['court']) && $item['court']['id'] === $court['id']
                 )
             );
-            $court['statistic']['arrests']   = (int) $this->connection->fetchOne(
-                'SELECT SUM(aftermath_amount) 
-                   FROM decisions 
-                  WHERE court_id = ? AND aftermath_type = \'arrest\' AND YEAR(timestamp) = 2020',
-                [$court['id']]
-            );
-            $fines                           = (int) $this->connection->fetchOne(
-                'SELECT SUM(aftermath_amount) 
-                   FROM decisions 
-                  WHERE court_id = ? AND aftermath_type = \'fine\' AND YEAR(timestamp) = 2020',
-                [$court['id']]
-            );
-            $court['statistic']['fines_rub'] = 27 * $fines;
-            $court['statistic']['fines']     = $fines;
             $court['title']                  = $court['name'];
             $court['region']                 = self::REGIONS[substr($court['id'], 0, 2)];
             $path                            = $court['id'] . '.md';
@@ -134,7 +130,14 @@ class GenerateContentForHugo extends Command
             )
         );
         $zip->addFile('courts.json', 'data/courts.json');
-
+        file_put_contents(
+            'courts_location.json',
+            json_encode(
+                $location,
+                JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+            )
+        );
+        $zip->addFile('courts_location.json', 'data/courts_location.json');
         $keyed = [];
         foreach ($judges as $judge) {
             $keyed[$judge['id']] = $judge;
@@ -150,6 +153,7 @@ class GenerateContentForHugo extends Command
         $zip->addFile('judges.json', 'data/judges.json');
         $zip->close();
         $paths[] = 'courts.json';
+        $paths[] = 'courts_location.json';
 //        array_walk($paths, fn(string $path) => unlink($path));
 
         return 0;
