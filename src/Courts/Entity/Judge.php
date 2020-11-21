@@ -23,7 +23,12 @@ use App\Courts\JudgeSortFilter;
  * )
  * @ORM\Entity
  * @ApiResource(
- *    collectionOperations={"get"={"normalization_context"={"groups"="get"}}},
+ *    collectionOperations={
+ *     "get"={
+ *          "normalization_context"={"groups"="get"},
+ *          "cache_headers"={"max_age"=60, "shared_max_age"=120}
+ *      }
+ *    },
  *    itemOperations={"get"={"normalization_context"={"groups"="get"}}}
  * )
  *
