@@ -27,6 +27,9 @@ final class JudgeSortFilter extends AbstractContextAwareFilter
 
         foreach ($value as $field => $order) {
             switch ($field) {
+                case 'fullName':
+                    $queryBuilder->addOrderBy('o.fullName', $order);
+                    break;
                 case 'tags':
                     $queryBuilder->addSelect('JSON_LENGTH(o.tags) as HIDDEN tag_contains');
                     $queryBuilder->addOrderBy('tag_contains', $order);
