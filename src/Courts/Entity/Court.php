@@ -4,6 +4,7 @@ namespace App\Courts\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use App\SearchByAllFields;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -76,6 +77,17 @@ class Court
      */
     private $comment;
 
+    /**
+     * @var Decision[]|ArrayCollection|null
+     * @ORM\OneToMany (targetEntity="App\Courts\Entity\Decision", mappedBy="court")
+     * @ORM\OrderBy({"timestamp" = "DESC"})
+     */
+    private $decisions;
+
+    public function __construct()
+    {
+        $this->decisions = new ArrayCollection();
+    }
 
     public function getId() : string
     {
@@ -115,5 +127,45 @@ class Court
     public function getComment() : string
     {
         return $this->comment;
+    }
+
+    public function getStatistic() : array
+    {
+        $fines    = 0;
+        $finesRub = 0;
+        $arrests  = 0;
+        $count    = 0;
+        /** @var Decision[] $decisions */
+        $decisions = $this->decisions->toArray();
+        foreach ($decisions as $decision) {
+            $count++;
+            if ($decision->getAftermathType() === 'arrest') {
+                $arrests += $decision->getAftermathAmount();
+                continue;
+            }
+            $rate = 0;
+            switch ($decision->timestamp()->format('Y')) {
+                case '2020':
+                    $rate = 27;
+                    break;
+                case '2019':
+                    $rate = 25.5;
+                    break;
+                case '2018':
+                    $rate = 24.5;
+                    break;
+                case '2017':
+                    $rate = 23;
+                    break;
+            }
+            $finesRub += $rate * $decision->getAftermathAmount();
+            $fines    += $decision->getAftermathAmount();
+        }
+        return [
+            'fines'     => $fines,
+            'fines_rub' => $finesRub,
+            'arrests'   => $arrests,
+            'count'     => $count,
+        ];
     }
 }
