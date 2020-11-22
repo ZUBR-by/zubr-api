@@ -166,7 +166,7 @@ class Judge
     {
         return [
             'id'            => $this->id,
-            'statistics'    => $this->getStatistic(),
+            'tags'           => $this->getTags(),
             'fullName'      => $this->fullName,
             'career'        => $this->career,
             'layout'        => 'judge',
