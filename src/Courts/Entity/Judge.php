@@ -10,6 +10,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\SearchByAllFields;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Courts\JudgeSortFilter;
+use App\Courts\JudgeTagsFilter;
 
 /**
  * @ORM\Table(
@@ -42,6 +43,9 @@ use App\Courts\JudgeSortFilter;
  * )
  * @ApiFilter(
  *     JudgeSortFilter::class
+ * )
+ * @ApiFilter(
+ *     JudgeTagsFilter::class
  * )
  * */
 class Judge

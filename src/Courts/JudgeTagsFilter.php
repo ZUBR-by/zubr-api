@@ -22,7 +22,7 @@ final class JudgeTagsFilter extends AbstractContextAwareFilter
             return;
         }
 
-        if (! in_array($property, ['tags']) || empty($value) || ! is_array($value)) {
+        if (! in_array($property, ['tag']) || empty($value) || ! is_array($value)) {
             return;
         }
 
@@ -34,7 +34,7 @@ final class JudgeTagsFilter extends AbstractContextAwareFilter
             $expression->add($queryBuilder->expr()->orX(
                 "JSON_CONTAINS(o.tags, :str_{$index}) = 1",
             ));
-            $queryBuilder->setParameter('str_' . $index, '"' . $item . '"', \PDO::PARAM_STR);
+            $queryBuilder->setParameter('str_' . $index, '"' . $index . '"', \PDO::PARAM_STR);
         }
         $queryBuilder->andWhere($expression);
     }
