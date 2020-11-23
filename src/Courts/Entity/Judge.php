@@ -170,7 +170,7 @@ class Judge
     {
         return [
             'id'            => $this->id,
-            'tags'           => $this->getTags(),
+            'tags'          => $this->getTags(),
             'fullName'      => $this->fullName,
             'career'        => $this->career,
             'layout'        => 'judge',
@@ -264,6 +264,9 @@ class Judge
         $decisions = $this->decisions->toArray();
         foreach ($decisions as $decision) {
             $count++;
+            if ($decision->getCategory() === 'criminal') {
+                continue;
+            }
             if ($decision->getAftermathType() === 'arrest') {
                 $arrests += $decision->getAftermathAmount();
                 continue;
