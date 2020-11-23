@@ -200,7 +200,7 @@ TAG
                         'last_name'       => $lastName,
                         'aftermath_extra' => $item['aftermath'],
                         'court_id'        => $item['court'] ?: null,
-                        'comment'         => json_encode($item['comments']),
+                        'comment'         => json_encode($item['comments'], JSON_UNESCAPED_UNICODE),
                     ]
                 );
             }
