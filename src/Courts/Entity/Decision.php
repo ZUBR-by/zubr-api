@@ -25,7 +25,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  * )
  * @ApiFilter(
  *     OrderFilter::class,
- *     properties={"aftermath_type", "timestamp"}, arguments={"orderParameterName"="sort"}
+ *     properties={"aftermath_type", "timestamp", "category"}, arguments={"orderParameterName"="sort"}
  * )
  * */
 class Decision
@@ -128,8 +128,8 @@ class Decision
     private $description;
 
     /**
-     * @var string
-     * @ORM\Column(type="string", length=1000, nullable=false, options={"default" : ""})
+     * @var array
+     * @ORM\Column(type="json", length=1000, nullable=false, options={"default" : ""})
      */
     private $comment;
 
@@ -236,7 +236,7 @@ class Decision
     "10.9": "10.9 КоАП - \" Умышленные уничтожение либо повреждение имущества, повлекшие причинение ущерба в незначительном размере, если в этих действиях нет состава преступления\"",
     "14.5": "14.5 ч.1 КоАП - \" недекларирование товаров или транспортных средств\"",
     "23.5": "23.5 КоАП - \" Оскорбление должностного лица при исполнении им служебных полномочий\"",
-    "9.1": "9.10 КоАП - \" Нарушение законодательства о выборах, референдуме, об отзыве депутата и о реализации права законодательной инициативы граждан\"",
+    "9.10": "9.10 КоАП - \" Нарушение законодательства о выборах, референдуме, об отзыве депутата и о реализации права законодательной инициативы граждан\"",
     "21.14_2": "21.14 ч. 2 КоАП - \" Нарушение других правил благоустройства и содержания населенных пунктов\"",
     "24.32": "24.32 КоАП - \" Уклонение от реализации огнестрельного оружия или боеприпасов, совершенное лицом, у которого аннулировано разрешение на их хранение\"",
     "9.2": "9.2 КоАП - \" ответственность за клевету, то есть распространение заведомо ложных, позорящих другое лицо измышлений\""
@@ -244,6 +244,11 @@ class Decision
 JSON;
         $hashes = json_decode($json, true);
 
-        return array_map(fn($item) => $hashes[$item], $this->article);
+        return array_map(fn($item) => $hashes[$item] ?? $item, $this->article);
+    }
+
+    public function getComment() : array
+    {
+        return $this->comment;
     }
 }

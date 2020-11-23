@@ -132,10 +132,10 @@ TAG
                         foreach ($judgeDB as $person) {
 
                             $var = explode(' ', $person['full_name']);
-                            if (!isset($var[1])) {
+                            if (! isset($var[1])) {
                                 throw new \Exception($person['full_name']);
                             }
-                            [$person['last_name'],$person['first_name'], $person['middle_name']] = $var;
+                            [$person['last_name'], $person['first_name'], $person['middle_name']] = $var;
 
                             if ($judgeName->hasSameFirstNameFirstLetter($person['first_name'])
                                 || $judgeName->firstName() === $person['first_name']
@@ -183,6 +183,28 @@ TAG
                     throw $e;
                 }
             }
+            $decisionsCriminal = json_decode(
+                file_get_contents($this->projectDir . '/datasets/courts/decisions_criminal.json'),
+                true
+            );
+            foreach ($decisionsCriminal as $item) {
+                [$firstName, $lastName] = explode(' ', $item['full_name']);
+                $this->connection->insert(
+                    'decisions',
+                    [
+                        'article'         => json_encode($item['articles'], JSON_UNESCAPED_UNICODE),
+                        'category'        => 'criminal',
+                        'judge_id'        => $item['judge'] ?: null,
+                        'timestamp'       => $item['timestamp'],
+                        'first_name'      => $firstName,
+                        'last_name'       => $lastName,
+                        'aftermath_extra' => $item['aftermath'],
+                        'court_id'        => $item['court'] ?: null,
+                        'comment'         => json_encode($item['comments']),
+                    ]
+                );
+            }
+
             $missing = array_unique($missing);
             sort($missing);
             $output->write(implode(PHP_EOL, array_unique($missing)) . PHP_EOL);
