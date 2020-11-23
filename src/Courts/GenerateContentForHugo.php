@@ -119,8 +119,8 @@ class GenerateContentForHugo extends Command
             $paths[] = $path;
         }
         $keyed = [];
-        foreach ($courts as $court) {
-            $keyed[$court['id']] = $court;
+        foreach ($courts as $courtItem) {
+            $keyed[$courtItem['id']] = $courtItem;
         }
         file_put_contents(
             'courts.json',
