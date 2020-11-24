@@ -107,10 +107,5 @@ $BACKEND_HOST
         }
     }
   }
-  post {
-    always {
-//       cleanWs()
-    }
-  }
 }
 
