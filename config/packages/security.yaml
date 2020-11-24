@@ -1,6 +1,6 @@
 security:
     encoders:
-      App\Entity\Staff:
+      App\Elections\Entity\Staff:
         algorithm: argon2i
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers

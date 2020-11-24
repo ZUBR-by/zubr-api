@@ -154,7 +154,7 @@ class GenerateContentForHugo extends Command
         $zip->close();
         $paths[] = 'courts.json';
         $paths[] = 'courts_location.json';
-//        array_walk($paths, fn(string $path) => unlink($path));
+        array_walk($paths, fn(string $path) => unlink($path));
 
         return 0;
     }
