@@ -8,7 +8,7 @@ security:
         users_in_memory: { memory: null }
         app_user_provider:
           entity:
-            class: App\Entity\Staff
+            class: App\Elections\Entity\Staff
             property: id
     firewalls:
         dev:
