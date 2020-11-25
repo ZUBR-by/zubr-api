@@ -72,21 +72,7 @@ class Decision
      *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
      */
-    private $lastName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
-     */
-    private $firstName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
-     */
-    private $middleName;
+    private $fullName;
 
     /**
      * @var string
@@ -198,7 +184,7 @@ class Decision
 
     public function getFullName() : string
     {
-        return implode(' ', [$this->lastName, $this->firstName, $this->middleName]);
+        return $this->fullName;
     }
 
     public function getAftermath() : string

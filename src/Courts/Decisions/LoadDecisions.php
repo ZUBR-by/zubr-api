@@ -85,12 +85,9 @@ class LoadDecisions extends Command
             $courts               = $this->loadCourts();
             $missing              = [];
             foreach ($decisions as $decision) {
-                $fullName = new TranslatedFullName($decision['full_name'], $translations);
-                $data     = [
+                $data = [
                     'timestamp'   => $decision['court_date'] ?: null,
-                    'first_name'  => $fullName->firstName(),
-                    'last_name'   => $fullName->lastName(),
-                    'middle_name' => $fullName->middleName(),
+                    'full_name'   => $decision['full_name'],
                     'description' => $decision['event_date'] ?: null,
                     'comment'     => json_encode(
                         [
@@ -188,7 +185,6 @@ TAG
                 true
             );
             foreach ($decisionsCriminal as $item) {
-                [$firstName, $lastName] = explode(' ', $item['full_name']);
                 $this->connection->insert(
                     'decisions',
                     [
@@ -196,8 +192,7 @@ TAG
                         'category'        => 'criminal',
                         'judge_id'        => $item['judge'] ?: null,
                         'timestamp'       => $item['timestamp'],
-                        'first_name'      => $firstName,
-                        'last_name'       => $lastName,
+                        'full_name'        => $item['full_name'],
                         'aftermath_extra' => $item['aftermath'],
                         'court_id'        => $item['court'] ?: null,
                         'comment'         => json_encode($item['comments'], JSON_UNESCAPED_UNICODE),
