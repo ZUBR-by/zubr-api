@@ -21,6 +21,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  *     properties={
  *         "court.id": "exact",
  *         "judge.id": "exact",
+ *         "source": "exact",
  *     }
  * )
  * @ApiFilter(
