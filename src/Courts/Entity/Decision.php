@@ -133,6 +133,13 @@ class Decision
      */
     private $comment;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : "spring96"})
+     */
+    private $source = 'spring96';
+
     public function getId() : int
     {
         return $this->id;
