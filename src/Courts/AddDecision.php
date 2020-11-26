@@ -44,6 +44,7 @@ class AddDecision extends AbstractController
                         $json['first_name'],
                         $json['middle_name']
                     ),
+                    'is_sensitive'     => (int) $json['is_sensitive'],
                     'timestamp'        => (new DateTime($json['timestamp']))->format('Y-m-d'),
                     'judge_id'         => $json['judge'],
                     'court_id'         => $json['court'],

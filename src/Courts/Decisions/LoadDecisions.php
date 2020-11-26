@@ -86,10 +86,11 @@ class LoadDecisions extends Command
             $missing              = [];
             foreach ($decisions as $decision) {
                 $data = [
-                    'timestamp'   => $decision['court_date'] ?: null,
-                    'full_name'   => $decision['full_name'],
-                    'description' => $decision['event_date'] ?: null,
-                    'comment'     => json_encode(
+                    'is_sensitive' => 0,
+                    'timestamp'    => $decision['court_date'] ?: null,
+                    'full_name'    => $decision['full_name'],
+                    'description'  => $decision['event_date'] ?: null,
+                    'comment'      => json_encode(
                         [
                             'extra'     => $decision['extra'],
                             'judge'     => $decision['judge'],
@@ -99,8 +100,8 @@ class LoadDecisions extends Command
                         ],
                         JSON_UNESCAPED_UNICODE
                     ),
-                    'article'     => $decision['article'],
-                    'court_id'    => $courts[$decision['court']] ?? null,
+                    'article'      => $decision['article'],
+                    'court_id'     => $courts[$decision['court']] ?? null,
                 ];
                 if ($decision['arrest'] === '' && $decision['fine'] === '') {
                     continue;

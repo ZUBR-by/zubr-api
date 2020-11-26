@@ -77,6 +77,13 @@ class Decision
     /**
      * @var string
      *
+     * @ORM\Column(type="boolean", nullable=false, options={"default" : "1"})
+     */
+    private $isSensitive = true;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
      */
     private $aftermathType;
