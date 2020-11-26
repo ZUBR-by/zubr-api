@@ -49,7 +49,7 @@ class AddDecision extends AbstractController
                     'judge_id'         => $json['judge'],
                     'court_id'         => $json['court'],
                     'source'           => 'zubr',
-                    'description'      => $json['description'],
+                    'description'      => (string) $json['description'],
                     'aftermath_type'   => $json['aftermath_type'],
                     'aftermath_amount' => $json['aftermath_amount'],
                     'article'          => json_encode($json['articles']),
