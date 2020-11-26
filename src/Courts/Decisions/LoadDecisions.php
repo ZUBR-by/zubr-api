@@ -90,7 +90,7 @@ class LoadDecisions extends Command
                     'timestamp'    => $decision['court_date'] ?: null,
                     'full_name'    => $decision['full_name'],
                     'description'  => $decision['event_date'] ?: null,
-                    'comment'      => json_encode(
+                    'extra'      => json_encode(
                         [
                             'extra'     => $decision['extra'],
                             'judge'     => $decision['judge'],
