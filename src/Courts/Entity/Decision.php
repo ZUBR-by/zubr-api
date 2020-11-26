@@ -118,7 +118,7 @@ class Decision
      * @var array
      * @ORM\Column(type="json", length=1000, nullable=false, options={"default" : ""})
      */
-    private $comment;
+    private $extra;
 
     /**
      * @var string
@@ -243,6 +243,11 @@ JSON;
 
     public function getComment() : array
     {
-        return $this->comment;
+        return $this->extra;
+    }
+
+    public function getExtra() : array
+    {
+        return $this->extra;
     }
 }

@@ -12,9 +12,9 @@ services:
     autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
     bind:
       $projectDir: "%kernel.project_dir%"
-      $sheetId:    "env(SHEET_ID)"
-      $bucketMembers:    "%env(BUCKET_MEMBERS)%"
-      $bucketReports:    "%env(BUCKET_REPORTS)%"
+      $sheetId: "env(SHEET_ID)"
+      $bucketMembers: "%env(BUCKET_MEMBERS)%"
+      $bucketReports: "%env(BUCKET_REPORTS)%"
       $unsubscribeSecret: "%env(UNSUBSCRIBE_SECRET)%"
   # makes classes in src/ available to be used as services
   # this creates a service per class whose id is the fully-qualified class name
@@ -38,49 +38,53 @@ services:
 
   App\SwaggerDecorator:
     decorates: 'api_platform.swagger.normalizer.documentation'
-    arguments: ['@App\SwaggerDecorator.inner']
+    arguments: [ '@App\SwaggerDecorator.inner' ]
     autoconfigure: false
 
   App\Elections\Commission\GeneratePoster:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\Elections\Commission\PosterRenderer: ~
 
   App\Elections\Commission\GeneratePosterWithoutPhoto:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\Elections\HonestPeople\VerifyObserver:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\HelpRequest\CreateRequest:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\UploadAttachment:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\HelpRequest\GetListAction:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\Unsubscribe:
-    tags: ['controller.service_arguments']
+    tags: [ 'controller.service_arguments' ]
 
   App\Courts\LoadJudges:
-    arguments: ['@doctrine.dbal.courts_connection']
+    arguments: [ '@doctrine.dbal.courts_connection' ]
 
   App\Courts\LoadHistory:
-    arguments: ['@doctrine.dbal.courts_connection']
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+
+  App\Courts\AddDecision:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+    tags: [ 'controller.service_arguments' ]
 
   App\Courts\LoadImagesLocal:
-    arguments: ['@doctrine.dbal.courts_connection']
+    arguments: [ '@doctrine.dbal.courts_connection' ]
 
   App\Courts\LoadCourts:
-    arguments: ['@doctrine.dbal.courts_connection']
+    arguments: [ '@doctrine.dbal.courts_connection' ]
 
   App\Courts\Decisions\LoadDecisions:
-    arguments: ['@doctrine.dbal.courts_connection']
+    arguments: [ '@doctrine.dbal.courts_connection' ]
 
   App\Courts\GenerateContentForHugo:
-    arguments: ['@doctrine.orm.courts_entity_manager']
+    arguments: [ '@doctrine.orm.courts_entity_manager' ]
 
   'App\Normalizer':
     decorates: 'api_platform.jsonld.normalizer.item'

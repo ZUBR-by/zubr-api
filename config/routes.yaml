@@ -37,6 +37,12 @@ commission_verify:
   defaults:
     _controller: App\HonestPeople\VerifyObserver
 
+add_decision:
+  path: /api/decision
+  methods: ['POST']
+  defaults:
+    _controller: App\Courts\AddDecision
+
 unsubscribe:
   path: /unsubscribe/{uid}/{hash}
   methods: ['GET']

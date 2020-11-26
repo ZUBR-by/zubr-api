@@ -192,10 +192,10 @@ TAG
                         'category'        => 'criminal',
                         'judge_id'        => $item['judge'] ?: null,
                         'timestamp'       => $item['timestamp'],
-                        'full_name'        => $item['full_name'],
+                        'full_name'       => $item['full_name'],
                         'aftermath_extra' => $item['aftermath'],
                         'court_id'        => $item['court'] ?: null,
-                        'comment'         => json_encode($item['comments'], JSON_UNESCAPED_UNICODE),
+                        'extra'           => json_encode($item['comments'], JSON_UNESCAPED_UNICODE),
                     ]
                 );
             }
