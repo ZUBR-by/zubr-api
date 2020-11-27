@@ -192,6 +192,10 @@ class Decision
 
     public function getFullName() : string
     {
+        if ($this->isSensitive) {
+            $chunks = explode(' ', $this->fullName);
+            return sprintf('%s %s %s', substr($chunks[0], 0, 1), $chunks[1], $chunks[2]);
+        }
         return $this->fullName;
     }
 
