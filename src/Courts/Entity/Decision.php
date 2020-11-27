@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
 
 /**
  * @ORM\Table(name="decisions")
@@ -29,6 +30,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  *     OrderFilter::class,
  *     properties={"aftermath_type", "timestamp", "category"}, arguments={"orderParameterName"="sort"}
  * )
+ * @ApiFilter(ExistsFilter::class, properties={"hiddenAt"})
  * */
 class Decision
 {
@@ -134,6 +136,13 @@ class Decision
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : "spring96"})
      */
     private $source = 'spring96';
+
+    /**
+     * @var DateTime
+     *
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $hiddenAt;
 
     public function getId() : int
     {
