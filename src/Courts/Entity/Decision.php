@@ -22,6 +22,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  *         "court.id": "exact",
  *         "judge.id": "exact",
  *         "source": "exact",
+ *         "fullName": "partial"
  *     }
  * )
  * @ApiFilter(
