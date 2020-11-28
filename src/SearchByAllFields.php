@@ -51,6 +51,11 @@ class SearchByAllFields extends AbstractContextAwareFilter
             $queryBuilder->setParameter(':commission_code', $value);
             return;
         }
+        if ($resourceClass === Court::class && preg_match('/(\d{1,2})\-(\d{1,3})\-(\d{1,2})-(\d{1,2})/', $value, $parts)) {
+            $queryBuilder->andWhere("o.id = :code");
+            $queryBuilder->setParameter(':code', $value);
+            return;
+        }
 
         $fields = [];
         foreach (self::MAP[$resourceClass] as $fieldIndex => $field) {
