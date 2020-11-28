@@ -107,5 +107,26 @@ $BACKEND_HOST
         }
     }
   }
+  post {
+    always {
+      notifyBuild(currentBuild.result)
+    }
+  }
+}
+
+def notifyBuild(def buildStatus) {
+    // set default of build status
+    buildStatus =  buildStatus ?: 'SUCCESS'
+    env.PREVIOUS_BUILD_RESULT = currentBuild.rawBuild.getPreviousBuild()?.getResult().toString()
+    GIT_COMMIT_MSG = sh (
+        script: "git log --format=format:%s -1 ${GIT_COMMIT}",
+        returnStdout: true
+    ).trim()
+    def emojiMap = [ 'STARTED': '#F0FFFF', 'SUCCESS': '✅', 'FAILURE': '🛑' ]
+    telegramSend """
+${emojiMap[buildStatus]} *${JOB_NAME}* - ${buildStatus}
+${env.RUN_DISPLAY_URL}
+${GIT_COMMIT_MSG}
+    """
 }
 
