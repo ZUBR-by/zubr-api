@@ -70,6 +70,10 @@ services:
   App\Courts\LoadHistory:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
+  App\Courts\GetStatisticsAction:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+    tags: [ 'controller.service_arguments' ]
+
   App\Courts\AddDecision:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
@@ -89,3 +93,4 @@ services:
   'App\Normalizer':
     decorates: 'api_platform.jsonld.normalizer.item'
     arguments: [ '@App\Normalizer.inner' ]
+

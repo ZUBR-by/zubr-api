@@ -43,6 +43,11 @@ add_decision:
   defaults:
     _controller: App\Courts\AddDecision
 
+statistic:
+  path: /statistic
+  defaults:
+    _controller: App\Courts\GetStatisticsAction
+
 unsubscribe:
   path: /unsubscribe/{uid}/{hash}
   methods: ['GET']
