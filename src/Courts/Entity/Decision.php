@@ -203,7 +203,7 @@ class Decision
     {
         if ($this->isSensitive) {
             $chunks = explode(' ', $this->fullName);
-            return sprintf('%s %s %s', mb_substr($chunks[0], 0, 1), $chunks[1], $chunks[2]);
+            return sprintf('%s %s %s', mb_substr($chunks[0], 0, 1), $chunks[1] ?? '', $chunks[2] ?? '');
         }
         return $this->fullName;
     }

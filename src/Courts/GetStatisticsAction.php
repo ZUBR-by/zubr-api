@@ -24,7 +24,7 @@ class GetStatisticsAction extends AbstractController
             <<<'TAG'
 SELECT COUNT(1) as num, LEFT(court_id, 2) as region, YEAR(timestamp) as year
   FROM decisions
- WHERE YEAR(timestamp) IN (2019, 2020)
+ WHERE YEAR(timestamp) IN (2019, 2020) AND court_id IS NOT NULL
 GROUP BY LEFT(court_id, 2), YEAR(timestamp)
 ORDER BY year DESC, region
 TAG
