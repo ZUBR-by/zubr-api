@@ -84,7 +84,7 @@ class AddDecision extends AbstractController
                         'ContentType' => $mime,
                         'Key'         => $id . '_' . sha1(base64_decode($data)),
                         'Body'        => base64_decode($data),
-                        'ACL'         => 'private',
+                        'ACL'         => 'public-read',
                     ]);
 
                     $objects['edited'] = json_encode([
