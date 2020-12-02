@@ -1,0 +1,13 @@
+- hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Copy file
+      copy:
+        src: migration.sql
+        dest: migration.sql
+
+    - name: Run migration
+      shell: 'mysql --default-character-set=utf8mb4 courts < migration.sql'
+      register: update
+    - debug: var=update.stdout_lines

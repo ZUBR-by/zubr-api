@@ -32,3 +32,5 @@ infrastructure/*.retry
 !infrastructure/credentials
 /infrastructure/credentials/*
 !infrastructure/credentials/.gitkeep
+
+infrastructure/database/migration.sql
