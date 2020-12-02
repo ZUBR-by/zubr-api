@@ -40,4 +40,17 @@ class Attachment
      * @ORM\Column(type="json", nullable=true)
      */
     private $edited;
+
+    public function isImage() : bool
+    {
+        if (! is_array($this->edited)) {
+            return false;
+        }
+        return strpos($this->edited['type'], 'image') === 0;
+    }
+
+    public function url() : ?string
+    {
+        return $this->edited['url'] ?? null;
+    }
 }

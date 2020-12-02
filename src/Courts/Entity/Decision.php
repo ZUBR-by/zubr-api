@@ -5,6 +5,7 @@ namespace App\Courts\Entity;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
@@ -114,9 +115,9 @@ class Decision
     /**
      * @var array
      *
-     * @ORM\Column(type="json", nullable=false, options={"default" : "{}"})
+     * @ORM\Column(name="attachments", type="json", nullable=false, options={"default" : "{}"})
      */
-    private $attachments;
+    private $attachmentsInline;
 
     /**
      * @var string
@@ -143,6 +144,17 @@ class Decision
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $hiddenAt;
+
+    /**
+     * @var Attachment[]|ArrayCollection
+     * @ORM\OneToMany (targetEntity="App\Courts\Entity\Attachment", mappedBy="decision")
+     */
+    private $attachments;
+
+    public function __construct()
+    {
+        $this->attachments = new ArrayCollection();
+    }
 
     public function getId() : int
     {
@@ -191,7 +203,17 @@ class Decision
 
     public function getAttachments() : array
     {
-        return $this->attachments;
+        $links = [];
+        /** @var Attachment[] $tmp */
+        $tmp = $this->attachments->toArray();
+        foreach ($tmp as $element) {
+            if (! $element->isImage()) {
+                continue;
+            }
+            $links[] = $element->url();
+        }
+
+        return array_filter($links);
     }
 
     public function getDescription() : string
