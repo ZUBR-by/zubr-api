@@ -121,7 +121,7 @@ class Decision
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=1000, nullable=false, options={"default" : ""})
+     * @ORM\Column(type="string", length=2000, nullable=false, options={"default" : ""})
      */
     private $description;
 
