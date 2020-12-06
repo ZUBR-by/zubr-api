@@ -40,19 +40,19 @@ class AddDecision extends AbstractController
                 [
                     'full_name'        => sprintf(
                         '%s %s %s',
-                        $json['last_name'],
-                        $json['first_name'],
-                        $json['middle_name']
+                        $json['lastName'],
+                        $json['firstName'],
+                        $json['middleName']
                     ),
-                    'is_sensitive'     => (int) $json['is_sensitive'],
-                    'hidden_at'        => isset($json['is_hidden']) && $json['is_hidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
+                    'is_sensitive'     => (int) $json['isSensitive'],
+                    'hidden_at'        => isset($json['isHidden']) && $json['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
                     'timestamp'        => (new DateTime($json['timestamp']))->format('Y-m-d'),
                     'judge_id'         => $json['judge'],
                     'court_id'         => $json['court'],
                     'source'           => 'zubr',
                     'description'      => (string) ($json['description'] ?? ''),
-                    'aftermath_type'   => $json['aftermath_type'],
-                    'aftermath_amount' => $json['aftermath_amount'],
+                    'aftermath_type'   => $json['aftermathType'],
+                    'aftermath_amount' => $json['aftermathAmount'],
                     'article'          => json_encode($json['articles']),
                     'extra'            => json_encode(['links' => array_filter(array_column($json['links'], 'url'))]),
                 ]

@@ -78,7 +78,14 @@ services:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
 
+  App\Courts\EditDecision:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+    tags: [ 'controller.service_arguments' ]
+
   App\Courts\LoadImagesLocal:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+
+  App\Courts\UpdateFromSpring96:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
   App\Courts\LoadCourts:

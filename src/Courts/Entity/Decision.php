@@ -10,13 +10,29 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\ExistsFilter;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Table(name="decisions")
  * @ORM\Entity
  * @ApiResource(
- *    collectionOperations={"get"},
- *    itemOperations={"get"}
+ *    normalizationContext={"groups"={"public"}},
+ *    collectionOperations={
+ *      "get_private"={
+ *          "method"="GET",
+ *          "path"="/resolutions",
+ *          "security"="is_granted('ROLE_USER')",
+ *          "normalization_context"={"groups"={"private"}}
+ *      },
+ *      "get_public"={
+ *          "method"="GET",
+ *          "path"="/decision",
+ *          "normalization_context"={"groups"={"public"}},
+ *      }
+ *    },
+ *    itemOperations={
+ *      "get"={"normalization_context"={"groups"={"public","private"}}}
+ *    }
  * )
  * @ApiFilter(
  *     SearchFilter::class,
@@ -41,12 +57,14 @@ class Decision
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Groups({"public", "private"})
      */
     private $id;
 
     /**
      * @var DateTime|null
      * @ORM\Column(type="datetime", nullable=true)
+     * @Groups({"public", "private"})
      */
     private $timestamp;
 
@@ -54,6 +72,7 @@ class Decision
      * @var Court|null
      * @ORM\ManyToOne(targetEntity="App\Courts\Entity\Court")
      * @ORM\JoinColumn(name="court_id", referencedColumnName="id")
+     * @Groups({"public", "private"})
      */
     private $court;
 
@@ -68,6 +87,7 @@ class Decision
      * @var Judge|null
      * @ORM\ManyToOne(targetEntity="App\Courts\Entity\Judge")
      * @ORM\JoinColumn(name="judge_id", referencedColumnName="id")
+     * @Groups({"public", "private"})
      */
     private $judge;
 
@@ -79,8 +99,8 @@ class Decision
     private $fullName;
 
     /**
-     * @var string
-     *
+     * @var bool
+     * @Groups({"private"})
      * @ORM\Column(type="boolean", nullable=false, options={"default" : "1"})
      */
     private $isSensitive = true;
@@ -89,6 +109,7 @@ class Decision
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
+     * @Groups({"public", "private"})
      */
     private $aftermathType;
 
@@ -96,12 +117,14 @@ class Decision
      * @var string
      *
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
+     * @Groups({"public", "private"})
      */
     private $aftermathExtra;
 
     /**
      * @var string|null
      * @ORM\Column(type="decimal", nullable=true, precision=8, scale=2)
+     * @Groups({"public", "private"})
      */
     private $aftermathAmount;
 
@@ -109,6 +132,7 @@ class Decision
      * @var array
      *
      * @ORM\Column(type="json", length=1000, nullable=false, options={"default" : ""})
+     * @Groups({"public", "private"})
      */
     private $article;
 
@@ -122,12 +146,14 @@ class Decision
     /**
      * @var string
      * @ORM\Column(type="string", length=2000, nullable=false, options={"default" : ""})
+     * @Groups({"public", "private"})
      */
     private $description;
 
     /**
      * @var array
      * @ORM\Column(type="json", length=1000, nullable=false, options={"default" : ""})
+     * @Groups({"public", "private"})
      */
     private $extra;
 
@@ -148,6 +174,7 @@ class Decision
     /**
      * @var Attachment[]|ArrayCollection
      * @ORM\OneToMany (targetEntity="App\Courts\Entity\Attachment", mappedBy="decision")
+     * @Groups({"public", "private"})
      */
     private $attachments;
 
@@ -221,6 +248,9 @@ class Decision
         return $this->description;
     }
 
+    /**
+     * @Groups({"public", "private"})
+     */
     public function getFullName() : string
     {
         if ($this->isSensitive) {
@@ -230,6 +260,9 @@ class Decision
         return $this->fullName;
     }
 
+    /**
+     * @Groups({"public", "private"})
+     */
     public function getAftermath() : string
     {
         if (! in_array($this->aftermathType, ['arrest', 'fine'])) {
@@ -242,11 +275,17 @@ class Decision
         return sprintf('%s б.в.', (int) $this->aftermathAmount);
     }
 
+    /**
+     * @Groups({"private"})
+     */
     public function getCategory() : string
     {
         return $this->category;
     }
 
+    /**
+     * @Groups({"public", "private"})
+     */
     public function getArticles() : array
     {
         $json   = /** @lang JSON */
@@ -284,6 +323,9 @@ JSON;
         return array_map(fn($item) => $hashes[$item] ?? $item, $this->article);
     }
 
+    /**
+     * @Groups({"public", "private"})
+     */
     public function getComment() : array
     {
         return $this->extra;
@@ -292,5 +334,26 @@ JSON;
     public function getExtra() : array
     {
         return $this->extra;
+    }
+
+    /**
+     * @Groups({"public", "private"})
+     */
+    public function getTimestampRaw() : string
+    {
+        return $this->timestamp->format(DATE_ATOM);
+    }
+
+    /**
+     * @Groups({"private"})
+     */
+    public function getFullNameRaw() : string
+    {
+        return $this->fullName;
+    }
+
+    public function getIsSensitive() : bool
+    {
+        return $this->isSensitive;
     }
 }

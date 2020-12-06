@@ -43,6 +43,12 @@ add_decision:
   defaults:
     _controller: App\Courts\AddDecision
 
+edit_decision:
+  path: /api/decision/{id}
+  methods: ['PATCH']
+  defaults:
+    _controller: App\Courts\EditDecision
+
 statistic:
   path: /statistic
   defaults:
