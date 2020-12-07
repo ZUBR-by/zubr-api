@@ -25,10 +25,10 @@ class EditDecision extends AbstractController
             $this->dbal->update(
                 'decisions',
                 [
-                    'full_name'        => implode(
+                    'full_name'        => trim(implode(
                         ' ',
                         [$content['lastName'], $content['firstName'], $content['middleName']]
-                    ),
+                    )),
                     'is_sensitive'     => (int) $content['isSensitive'],
                     'aftermath_type'   => $content['aftermathType'],
                     'aftermath_amount' => $content['aftermathAmount'],
