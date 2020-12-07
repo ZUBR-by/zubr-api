@@ -356,4 +356,12 @@ JSON;
     {
         return $this->isSensitive;
     }
+
+    /**
+     * @Groups({"private"})
+     */
+    public function getSource() : string
+    {
+        return $this->source;
+    }
 }

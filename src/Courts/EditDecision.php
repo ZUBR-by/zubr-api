@@ -33,11 +33,11 @@ class EditDecision extends AbstractController
                     'aftermath_type'   => $content['aftermathType'],
                     'aftermath_amount' => $content['aftermathAmount'],
                     'description'      => $content['description'],
+                    'source'           => $content['source'] ?? 'zubr',
+                    'category'         => $content['category'] ?? 'administrative',
                     'timestamp'        => (new DateTime($content['timestamp']))->format('Y-m-d'),
                 ],
-                [
-                    'id' => $content['id'],
-                ]
+                ['id' => $content['id']]
             );
         } catch (Throwable $e) {
             $errorHandler->handleException($e);
