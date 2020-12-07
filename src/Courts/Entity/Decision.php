@@ -137,13 +137,6 @@ class Decision
     private $article;
 
     /**
-     * @var array
-     *
-     * @ORM\Column(name="attachments", type="json", nullable=false, options={"default" : "{}"})
-     */
-    private $attachmentsInline;
-
-    /**
      * @var string
      * @ORM\Column(type="string", length=2000, nullable=false, options={"default" : ""})
      * @Groups({"public", "private"})
