@@ -357,4 +357,12 @@ JSON;
     {
         return $this->source;
     }
+
+    /**
+     * @Groups({"private"})
+     */
+    public function getHiddenAt() : ?DateTime
+    {
+        return $this->hiddenAt;
+    }
 }

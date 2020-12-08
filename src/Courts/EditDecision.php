@@ -35,15 +35,16 @@ class EditDecision extends AbstractController
                     'description'      => $content['description'],
                     'source'           => $content['source'] ?? 'zubr',
                     'category'         => $content['category'] ?? 'administrative',
+                    'hidden_at'         => isset($content['isHidden']) && $content['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
                     'timestamp'        => (new DateTime($content['timestamp']))->format('Y-m-d'),
                 ],
                 ['id' => $content['id']]
             );
         } catch (Throwable $e) {
             $errorHandler->handleException($e);
-            return [
+            return $this->json([
                 'error' => true,
-            ];
+            ]);
         }
         return $this->json($content);
     }
