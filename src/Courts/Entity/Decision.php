@@ -134,7 +134,7 @@ class Decision
      * @ORM\Column(type="json", length=1000, nullable=false, options={"default" : ""})
      * @Groups({"public", "private"})
      */
-    private $article;
+    private $articles;
 
     /**
      * @var string
@@ -276,7 +276,7 @@ class Decision
      */
     public function getArticles() : array
     {
-        return $this->article;
+        return $this->articles;
     }
 
     /**
