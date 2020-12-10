@@ -54,7 +54,7 @@ class AddDecision extends AbstractController
                     'description'      => (string) ($json['description'] ?? ''),
                     'aftermath_type'   => $json['aftermathType'],
                     'aftermath_amount' => $json['aftermathAmount'],
-                    'article'          => json_encode($json['articles']),
+                    'articles'          => json_encode($json['articles']),
                     'extra'            => json_encode(
                         [
                             'links'     => array_filter(array_column($json['links'], 'url')),
