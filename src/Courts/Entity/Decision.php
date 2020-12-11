@@ -241,6 +241,9 @@ class Decision
      */
     public function getFullName() : string
     {
+        if ($this->source === '2334') {
+            return $this->fullName;
+        }
         if ($this->isSensitive) {
             $chunks = explode(' ', $this->fullName);
             return sprintf('%s %s %s', mb_substr($chunks[0], 0, 1), $chunks[1] ?? '', $chunks[2] ?? '');
