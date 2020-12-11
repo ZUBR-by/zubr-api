@@ -20,7 +20,22 @@ class GetStatisticsAction extends AbstractController
 
     public function __invoke() : JsonResponse
     {
-        $tmp    = $this->connection->fetchAllAssociative(
+        [$arrests, $finesRub, $fines] = $this->connection->fetchNumeric(
+            <<<'TAG'
+SELECT 
+    (SELECT SUM(aftermath_amount) 
+       FROM decisions 
+      WHERE category = 'administrative' AND YEAR(timestamp) IN (2020) AND aftermath_type = 'arrest'),
+    (SELECT SUM(IF(YEAR(timestamp) = 2020, aftermath_amount * 27, aftermath_amount * 25.5)) 
+       FROM decisions 
+      WHERE category = 'administrative' AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine'),
+    (SELECT SUM(aftermath_amount)
+       FROM decisions 
+      WHERE category = 'administrative' AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine')
+TAG
+        );
+
+        $tmp       = $this->connection->fetchAllAssociative(
             <<<'TAG'
 SELECT COUNT(1) as num, LEFT(court_id, 2) as region, YEAR(timestamp) as year
   FROM decisions
@@ -29,13 +44,33 @@ GROUP BY LEFT(court_id, 2), YEAR(timestamp)
 ORDER BY year DESC, region
 TAG
         );
-        $result = ['2019' => [], '2020' => []];
+        $result    = ['2019' => [], '2020' => []];
+        $maxYear   = 2019;
+        $maxRegion = '07';
+        $maxValue  = 0;
         foreach ($tmp as $row) {
-            $result[$row['year']][] = (int) $row['num'];
+            $value = (int) $row['num'];
+            if ($value > $maxValue) {
+                $maxValue  = $value;
+                $maxYear   = $row['year'];
+                $maxRegion = $row['region'];
+            }
+            $result[$row['year']][$row['region']] = $value;
         }
 
         return $this->json([
-            'data' => $result,
+            'data' => [
+                'max'     => [
+                    'year'   => (int) $maxYear,
+                    'region' => $maxRegion,
+                ],
+                'regions' => $result,
+                'total'   => [
+                    'finesRub' => $finesRub,
+                    'fines'    => $fines,
+                    'arrests'  => $arrests,
+                ],
+            ],
         ]);
     }
 }
