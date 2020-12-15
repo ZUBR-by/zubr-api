@@ -25,13 +25,13 @@ class GetStatisticsAction extends AbstractController
 SELECT 
     (SELECT SUM(aftermath_amount) 
        FROM decisions 
-      WHERE category = 'administrative' AND YEAR(timestamp) IN (2020) AND aftermath_type = 'arrest'),
+      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (2020) AND aftermath_type = 'arrest')  ,
     (SELECT SUM(IF(YEAR(timestamp) = 2020, aftermath_amount * 27, aftermath_amount * 25.5)) 
        FROM decisions 
-      WHERE category = 'administrative' AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine'),
+      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine'),
     (SELECT SUM(aftermath_amount)
        FROM decisions 
-      WHERE category = 'administrative' AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine')
+      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine')
 TAG
         );
 
@@ -39,7 +39,7 @@ TAG
             <<<'TAG'
 SELECT COUNT(1) as num, LEFT(court_id, 2) as region, YEAR(timestamp) as year
   FROM decisions
- WHERE YEAR(timestamp) IN (2019, 2020) AND court_id IS NOT NULL
+ WHERE YEAR(timestamp) IN (2019, 2020) AND court_id IS NOT NULL AND hidden_at IS NULL 
 GROUP BY LEFT(court_id, 2), YEAR(timestamp)
 ORDER BY year DESC, region
 TAG
