@@ -139,6 +139,9 @@ class Court
         $decisions = $this->decisions->toArray();
         foreach ($decisions as $decision) {
             $count++;
+            if ($decision->getHiddenAt() !== null) {
+                continue;
+            }
             if ($decision->getCategory() === 'criminal') {
                 continue;
             }
