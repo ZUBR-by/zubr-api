@@ -94,6 +94,9 @@ services:
   App\Courts\Decisions\LoadDecisions:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
+  App\Courts\UpdateJudges:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+
   App\Courts\GenerateContentForHugo:
     arguments: [ '@doctrine.orm.courts_entity_manager' ]
 
