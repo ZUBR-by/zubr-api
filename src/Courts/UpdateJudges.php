@@ -30,13 +30,17 @@ class UpdateJudges extends Command
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $this->connection->transactional(function () use ($output, $input) {
-            foreach (iterateCSV($this->projectDir . '/datasets/courts/judge.csv') as [$csvId, $fullName]) {
+            foreach (iterateCSV($this->projectDir . '/datasets/courts/judge.csv') as [$csvId, $fullName, , $phone]) {
                 $id = $this->connection->fetchOne('SELECT id FROM judge WHERE id = ?', [$csvId]);
                 if (! $id) {
                     $output->writeln($csvId);
-                    $this->connection->insert('judge', ['id' => $csvId, 'full_name' => $fullName]);
+                    $this->connection->insert('judge', ['id' => $csvId, 'full_name' => $fullName, 'comment' => $phone]);
                 } else {
-                    $this->connection->update('judge', ['full_name' => $fullName], ['id' => $csvId]);
+                    $this->connection->update(
+                        'judge',
+                        ['full_name' => $fullName, 'comment' => $phone],
+                        ['id' => $csvId]
+                    );
                 }
             }
         });
