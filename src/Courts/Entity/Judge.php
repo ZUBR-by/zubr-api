@@ -172,6 +172,7 @@ class Judge
             'id'            => $this->id,
             'tags'          => $this->getTags(),
             'fullName'      => $this->fullName,
+            'comment'       => $this->comment,
             'career'        => $this->career,
             'layout'        => 'judge',
             'title'         => 'Судья ' . $this->fullName,
