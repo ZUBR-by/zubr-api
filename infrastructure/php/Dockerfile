@@ -7,6 +7,7 @@ RUN apt-get update
 RUN apt-get install -y libcairo2-dev libjpeg62-turbo-dev libpango1.0-dev libgif-dev build-essential g++ freetype2-demos
 
 RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/include/
+
 RUN docker-php-ext-install \
         mbstring \
         opcache \
@@ -16,7 +17,7 @@ RUN docker-php-ext-install \
         gd \
         intl zip gd bcmath bz2 mbstring xml
 
-RUN yes | pecl install xdebug
+RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 WORKDIR /app
 
@@ -24,7 +25,6 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 
 RUN curl --silent --show-error https://getcomposer.org/installer | \
     php -- --install-dir=/usr/bin/ --filename=composer && \
-    composer global require hirak/prestissimo && \
     composer clear-cache
 
 COPY infrastructure/php/config/www.conf /usr/local/etc/php-fpm.d/www.conf

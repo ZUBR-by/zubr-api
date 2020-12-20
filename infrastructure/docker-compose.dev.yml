@@ -3,8 +3,11 @@ version: '3.4'
 services:
   php:
     environment:
-      XDEBUG_CONFIG: >-
-        remote_enable=1
-        remote_host=172.17.0.1
       PHP_IDE_CONFIG: serverName=symfony-docker
-    command: ["php-fpm", "--allow-to-run-as-root", "-d", "zend_extension=xdebug.so"]
+    command:
+      - "php-fpm"
+      - "--allow-to-run-as-root"
+      - "-d"
+      - "xdebug.mode=debug"
+      - "-d"
+      - "xdebug.discover_client_host=1"
