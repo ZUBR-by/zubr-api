@@ -8,6 +8,8 @@ services:
       - "php-fpm"
       - "--allow-to-run-as-root"
       - "-d"
+      - "zend_extension=xdebug.so"
+      - "-d"
       - "xdebug.mode=debug"
       - "-d"
       - "xdebug.discover_client_host=1"

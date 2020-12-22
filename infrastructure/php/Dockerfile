@@ -17,7 +17,7 @@ RUN docker-php-ext-install \
         gd \
         intl zip gd bcmath bz2 mbstring xml
 
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+RUN pecl install xdebug
 
 WORKDIR /app
 
