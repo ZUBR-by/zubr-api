@@ -2,29 +2,6 @@
   gather_facts: no
 
   tasks:
-    - name: add deploy user
-      user:
-        name: deploy
-        shell: /bin/bash
-
-    - name: add deploy group
-      group:
-        name: deploy
-
-    - name: Set authorized key taken from file
-      authorized_key:
-        user: deploy
-        state: present
-        key: "{{ lookup('file', 'credentials/pub.key') }}"
-
-    - name: Create a directory if it does not exist
-      file:
-        path: /api
-        state: directory
-        recurse: yes
-        owner: deploy
-        group: deploy
-
     - name: install php
       apt:
         pkg:
@@ -34,6 +11,8 @@
           - php7.4-xml
           - php7.4-curl
           - php7.4-gd
+          - php7.4-iconv
+          - php7.4-ctype
     - name: www-conf
       copy:
         src: php/www_conf_prod.conf
