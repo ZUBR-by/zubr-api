@@ -76,8 +76,6 @@ $PUBLIC_KEY
         environment {
              BACKEND_HOST   = credentials('API_BACKEND_HOST')
              FRONTEND_HOST  = credentials('FRONTEND_HOST')
-             API_HOST_1     = credentials('API_HOST_1')
-             API_HOST_2     = credentials('API_HOST_2')
         }
         steps {
             unstash 'vendor'
@@ -92,11 +90,8 @@ $PUBLIC_KEY
             unstash 'keys'
             writeFile file: 'hosts', text: """
 $FRONTEND_HOST
-$BACKEND_HOST
-$API_HOST_1
-$API_HOST_2
 [data]
-$BACKEND_HOST
+$FRONTEND_HOST
             """
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
