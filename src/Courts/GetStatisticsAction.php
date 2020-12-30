@@ -5,6 +5,7 @@ namespace App\Courts;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class GetStatisticsAction extends AbstractController
 {
@@ -18,21 +19,25 @@ class GetStatisticsAction extends AbstractController
         $this->connection = $connection;
     }
 
-    public function __invoke() : JsonResponse
+    public function __invoke(Request $request) : JsonResponse
     {
         [$arrests, $finesRub, $fines] = $this->connection->fetchNumeric(
             <<<'TAG'
 SELECT 
     (SELECT SUM(aftermath_amount) 
        FROM decisions 
-      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (2020) AND aftermath_type = 'arrest')  ,
+      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (:year) AND aftermath_type = 'arrest')  ,
     (SELECT SUM(IF(YEAR(timestamp) = 2020, aftermath_amount * 27, aftermath_amount * 25.5)) 
        FROM decisions 
-      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine'),
+      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (:year) AND aftermath_type = 'fine'),
     (SELECT SUM(aftermath_amount)
        FROM decisions 
-      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (2020) AND aftermath_type = 'fine')
+      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (:year) AND aftermath_type = 'fine')
 TAG
+            ,
+            [
+                'year' => $request->query->getDigits('year', 2020)
+            ]
         );
 
         $tmp       = $this->connection->fetchAllAssociative(
