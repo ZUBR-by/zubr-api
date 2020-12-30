@@ -92,7 +92,7 @@ $PUBLIC_KEY
 $FRONTEND_HOST
 $BACKEND_HOST
 [data]
-$BACKEND_HOST
+$FRONTEND_HOST
             """
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
