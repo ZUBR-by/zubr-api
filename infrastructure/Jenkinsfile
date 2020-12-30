@@ -90,8 +90,9 @@ $PUBLIC_KEY
             unstash 'keys'
             writeFile file: 'hosts', text: """
 $FRONTEND_HOST
+$BACKEND_HOST
 [data]
-$FRONTEND_HOST
+$BACKEND_HOST
             """
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
