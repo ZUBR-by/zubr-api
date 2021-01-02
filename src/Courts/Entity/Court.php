@@ -151,6 +151,9 @@ class Court
             }
             $rate = 0;
             switch ($decision->timestamp()->format('Y')) {
+                case '2021':
+                    $rate = 29;
+                    break;
                 case '2020':
                     $rate = 27;
                     break;

@@ -21,24 +21,47 @@ class GetStatisticsAction extends AbstractController
 
     public function __invoke(Request $request) : JsonResponse
     {
-        [$arrests, $finesRub, $fines] = $this->connection->fetchNumeric(
+        $year = $request->query->getDigits('year', 2020);
+        [$arrests, $fines] = $this->connection->fetchNumeric(
             <<<'TAG'
 SELECT 
-    (SELECT SUM(aftermath_amount) 
+    IFNULL((SELECT SUM(aftermath_amount) 
        FROM decisions 
-      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (:year) AND aftermath_type = 'arrest')  ,
-    (SELECT SUM(IF(YEAR(timestamp) = 2020, aftermath_amount * 27, aftermath_amount * 25.5)) 
+      WHERE category = 'administrative' 
+            AND hidden_at IS NULL 
+            AND YEAR(timestamp) IN (:year) 
+            AND aftermath_type = 'arrest'), 0),
+    IFNULL((SELECT SUM(aftermath_amount)
        FROM decisions 
-      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (:year) AND aftermath_type = 'fine'),
-    (SELECT SUM(aftermath_amount)
-       FROM decisions 
-      WHERE category = 'administrative' AND hidden_at IS NULL AND YEAR(timestamp) IN (:year) AND aftermath_type = 'fine')
+      WHERE category = 'administrative' 
+            AND hidden_at IS NULL 
+            AND YEAR(timestamp) IN (:year) 
+            AND aftermath_type = 'fine'), 0)
 TAG
             ,
             [
-                'year' => $request->query->getDigits('year', 2020)
+                'year' => $year,
             ]
         );
+        $rate = 1;
+        switch ($year) {
+            case '2021':
+                $rate = 29;
+                break;
+            case '2020':
+                $rate = 27;
+                break;
+            case '2019':
+                $rate = 25.5;
+                break;
+            case '2018':
+                $rate = 24.5;
+                break;
+            case '2017':
+                $rate = 23;
+                break;
+        }
+        $finesRub = $fines * $rate;
 
         $tmp       = $this->connection->fetchAllAssociative(
             <<<'TAG'
