@@ -21,3 +21,24 @@ function iterateCSV(string $path) : Generator
     }
     fclose($handle);
 }
+
+function mapArraySQLFriendly(array $value) : array
+{
+    $result = [];
+    foreach ($value as $key => $item) {
+        if (is_string($item)) {
+            if (strpos($item, '\'') !== false) {
+                $result[] = '"' . $item . '"';
+            } else {
+                $result[] = '\'' . $item . '\'';
+            }
+
+        } elseif ($item === null) {
+            $result[] = 'NULL';
+        } else {
+            $result[] = $item;
+        }
+    }
+
+    return $result;
+}

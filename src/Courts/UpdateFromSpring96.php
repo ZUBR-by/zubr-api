@@ -2,6 +2,7 @@
 
 namespace App\Courts;
 
+use App\ErrorHandler;
 use App\TranslatedFullName;
 use Doctrine\DBAL\Connection;
 use Exception;
@@ -16,11 +17,16 @@ class UpdateFromSpring96 extends Command
 {
     private Connection $connection;
     private string $projectDir;
+    /**
+     * @var ErrorHandler
+     */
+    private ErrorHandler $errorHandler;
 
-    public function __construct(Connection $connection, string $projectDir)
+    public function __construct(Connection $connection, string $projectDir, ErrorHandler $errorHandler)
     {
-        $this->connection = $connection;
-        $this->projectDir = $projectDir;
+        $this->connection   = $connection;
+        $this->projectDir   = $projectDir;
+        $this->errorHandler = $errorHandler;
 
         parent::__construct();
     }
@@ -30,19 +36,11 @@ class UpdateFromSpring96 extends Command
         $this->setName('load:spring96');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $this->connection->transactional(function () use ($output) {
-            $client = new Client();
-
-            $response = $client->get('https://spring96.org/persecution?show=all');
-            $crawler  = new Crawler($response->getBody()->getContents());
-            $crawler  = $crawler->filter(
-                'html body div.persecution_content p.pagination:first-of-type a'
-            );
-
-            $countOld             = 1;
-            $countCurrent         = $crawler->count();
+            $output->writeln('Запрос данных c сайта Весны');
+            $client               = new Client();
             $translations         = json_decode(
                 file_get_contents($this->projectDir . '/datasets/courts/names.json'),
                 true
@@ -51,12 +49,13 @@ class UpdateFromSpring96 extends Command
                 file_get_contents($this->projectDir . '/datasets/courts/articles.json'),
                 true
             );
-            $missingJudges        = [];
             $missingCourts        = [];
             $courts               = $this->loadCourts();
 
-            foreach (range(970, ($countCurrent - $countOld) + 1) as $page) {
-                $output->writeln('Page: ' . $page);
+            $result = [];
+            $keys   = [];
+
+            foreach (range(1, 10) as $page) {
                 $response = $client->get(
                     'https://spring96.org/persecution?show=all&page=' . $page,
                 );
@@ -71,16 +70,17 @@ class UpdateFromSpring96 extends Command
                         $output,
                         $translationsArticles,
                         $translations,
-                        $missingJudges,
                         $missingCourts,
-                        $courts
+                        $courts,
+                        &$result,
+                        &$keys
                     ) {
                         $map      = [
                             0  => 'id',
                             1  => 'event_date',
                             2  => 'full_name',
                             3  => 'sex',
-                            4  => 'article',
+                            4  => 'articles',
                             5  => 'court_date',
                             6  => 'judge',
                             7  => 'court_raw',
@@ -93,7 +93,7 @@ class UpdateFromSpring96 extends Command
                             $decision[$map[$key]] = preg_replace('|  +|', '', trim($node->textContent));
                         }
                         if (in_array(
-                            $decision['article'],
+                            $decision['articles'],
                             [
                                 '',
                                 '18.23 КаАП - «Парушэнне правілаў дарожнага руху пешаходам і іншымі ўдзельнікамі дарожнага руху», 23.4 КаАП – «непадпарадкаваньне законным патрабаваньням службовай асобы»',
@@ -116,19 +116,16 @@ class UpdateFromSpring96 extends Command
                             'is_sensitive' => 0,
                             'timestamp'    => $decision['court_date'] ?: $decision['event_date'],
                             'full_name'    => $decision['full_name'],
-                            'description'  => $decision['event_date'] ?: null,
+                            'description'  => $decision['extra'] ?: '',
                             'extra'        => json_encode(
                                 [
-                                    'extra'     => $decision['extra'],
-                                    'judge'     => $decision['judge'],
-                                    'sex'       => $decision['sex'],
-                                    'court'     => $decision['court_raw'],
-                                    'full_name' => $decision['full_name'],
+                                    'judge' => $decision['judge'],
+                                    'sex'   => $decision['sex'],
                                 ],
                                 JSON_UNESCAPED_UNICODE
                             ),
                             'source'       => 'spring96',
-                            'article'      => $decision['article'],
+                            'articles'     => $decision['articles'],
                             'court_id'     => $courts[$decision['court_raw']] ?? null,
                         ];
                         if ($decision['arrest'] === '' && $decision['fine'] === '') {
@@ -177,47 +174,62 @@ TAG
                         }
                         $data['judge_id'] = $judgeId;
                         if ($decision['arrest']) {
-                            $data['aftermath_amount'] = preg_replace('/[^0-9]/', '', $decision['arrest']);
                             $data['aftermath_type']   = 'arrest';
+                            $data['aftermath_amount'] = preg_replace('/[^0-9]/', '', $decision['arrest']);
                         } else {
                             $aftermath = explode('б.в.', trim($decision['fine']));
                             if (count($aftermath) == 2) {
                                 $data['aftermath_type']   = 'fine';
-                                $data['aftermath_amount'] = $aftermath[0];
+                                $data['aftermath_amount'] = trim($aftermath[0]);
                             } else {
                                 $data['aftermath_extra'] = $decision['fine'];
                             }
                             $aftermath['extra'] = trim($decision['fine']);
                         }
-                        $data['article'] = json_encode(
+                        $data['articles'] = json_encode(
                             array_unique(
                                 array_map(
                                     'trim',
                                     explode(
                                         ',',
-                                        strtr($data['article'], $translationsArticles)
+                                        strtr($data['articles'], $translationsArticles)
                                     )
                                 )
                             )
                         );
-                        try {
-                            $this->connection->insert('decisions', $data);
-                        } catch (Throwable $e) {
-                            throw $e;
+                        $condition        = 'AND ';
+                        $condition        .= $data['court_id'] === null
+                            ? 'court_id IS NULL'
+                            : 'court_id = \'' . $data['court_id'] . '\'';
+                        $condition        .= ' AND ';
+                        $condition        .= $data['judge_id'] === null
+                            ? 'judge_id IS NULL'
+                            : 'judge_id = \'' . $data['judge_id'] . '\'';
+
+                        $status = $this->connection->fetchOne(
+                            <<<TAG
+SELECT 1
+  FROM decisions 
+ WHERE timestamp = ? AND full_name = ? $condition
+TAG
+                            ,
+                            [$data['timestamp'], $data['full_name']]
+                        );
+                        if ($status === '1') {
+                            return;
                         }
+                        $result[] = $data;
+                        if (! $keys) {
+                            $keys = array_keys($data);
+                        }
+                        $this->connection->insert('decisions', $data);
                     });
                 } catch (Throwable $e) {
-                    $output->writeln($e);
+                    $this->errorHandler->handleException($e);
                     break;
                 }
-
             }
-            $missingJudges = array_unique($missingJudges);
-            sort($missingJudges);
-            $output->write(implode(PHP_EOL, array_unique($missingJudges)) . PHP_EOL);
-            $output->writeln(count($missingJudges));
-            $output->writeln('Courts');
-            $output->write(implode(PHP_EOL, array_unique($missingCourts)) . PHP_EOL);
+            $output->writeln('Добавлено ' . count($result));
         });
 
         return 0;

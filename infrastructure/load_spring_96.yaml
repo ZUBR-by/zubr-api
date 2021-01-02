@@ -1,0 +1,12 @@
+- hosts: database
+  gather_facts: no
+
+  tasks:
+    - name: cron for spring96
+      cron:
+        name: spring96-autoupdate
+        hour: "1"
+        minute: "20"
+        user: deploy
+        job: "APP_ENV=prod php /api/current/bin/console load:spring96 2>&1 | /usr/bin/logger -t cron-daily"
+        cron_file: spring96-autoupdate
