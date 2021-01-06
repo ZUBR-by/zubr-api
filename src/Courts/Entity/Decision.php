@@ -165,6 +165,13 @@ class Decision
     private $hiddenAt;
 
     /**
+     * @var array
+     * @ORM\Column(type="json", nullable=false, options={"default" : "[]"})
+     * @Groups({"public", "private"})
+     */
+    private $outcome;
+
+    /**
      * @var Attachment[]|ArrayCollection
      * @ORM\OneToMany (targetEntity="App\Courts\Entity\Attachment", mappedBy="decision")
      * @Groups({"public", "private"})
@@ -256,7 +263,14 @@ class Decision
      */
     public function getAftermath() : string
     {
-        if (! in_array($this->aftermathType, ['arrest', 'fine'])) {
+        if (! in_array($this->aftermathType, [
+            'arrest',
+            'fine',
+            'moral_compensation',
+            'damage_compensation',
+            'expertise_compensation',
+            'warning',
+        ])) {
             return '';
         }
         if ($this->aftermathType === 'arrest') {
@@ -330,5 +344,33 @@ class Decision
     public function getHiddenAt() : ?DateTime
     {
         return $this->hiddenAt;
+    }
+
+    /**
+     * @Groups({"public", "private"})
+     */
+    public function getOutcome() : array
+    {
+        return $this->outcome;
+    }
+
+    /**
+     * @Groups({"public", "private"})
+     */
+    public function getOutcomeFormatted() : string
+    {
+        $result = [];
+        foreach ($this->outcome as $outcome) {
+            if (! in_array($outcome['type'], ['arrest', 'fine'])) {
+                continue;
+            }
+            if ($this->aftermathType === 'arrest') {
+                $result[] = sprintf('%s сут.', (int) $outcome['amount']);
+                continue;
+            }
+            $result[] = sprintf('%s б.в.', (int) $outcome['amount']);
+        }
+
+        return implode(',', $result);
     }
 }

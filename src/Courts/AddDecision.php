@@ -38,24 +38,23 @@ class AddDecision extends AbstractController
             $this->dbal->insert(
                 'decisions',
                 [
-                    'full_name'        => sprintf(
+                    'full_name'    => sprintf(
                         '%s %s %s',
                         $json['lastName'],
                         $json['firstName'],
                         $json['middleName']
                     ),
-                    'is_sensitive'     => (int) $json['isSensitive'],
-                    'hidden_at'        => isset($json['isHidden']) && $json['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
-                    'timestamp'        => (new DateTime($json['timestamp']))->format('Y-m-d'),
-                    'judge_id'         => $json['judge'],
-                    'court_id'         => $json['court'],
-                    'source'           => $json['source'] ?? 'zubr',
-                    'category'         => $json['category'] ?? 'administrative',
-                    'description'      => (string) ($json['description'] ?? ''),
-                    'aftermath_type'   => $json['aftermathType'],
-                    'aftermath_amount' => $json['aftermathAmount'],
-                    'articles'          => json_encode($json['articles']),
-                    'extra'            => json_encode(
+                    'is_sensitive' => (int) $json['isSensitive'],
+                    'hidden_at'    => isset($json['isHidden']) && $json['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
+                    'timestamp'    => (new DateTime($json['timestamp']))->format('Y-m-d'),
+                    'judge_id'     => $json['judge'],
+                    'court_id'     => $json['court'],
+                    'source'       => $json['source'] ?? 'zubr',
+                    'category'     => $json['category'] ?? 'administrative',
+                    'description'  => (string) ($json['description'] ?? ''),
+                    'outcome'      => json_encode($json['outcome'], JSON_UNESCAPED_UNICODE),
+                    'articles'     => json_encode($json['articles']),
+                    'extra'        => json_encode(
                         [
                             'links'     => array_filter(array_column($json['links'], 'url')),
                             'witnesses' => $json['witnesses'] ?? [],
@@ -67,6 +66,12 @@ class AddDecision extends AbstractController
             $id = $this->dbal->lastInsertId();
 
             foreach ($json['attachments'] as $file) {
+                if (! isset($file['original'])) {
+                    continue;
+                }
+                if ($file['original'] === null) {
+                    continue;
+                }
                 $objects = ['decision_id' => $id, 'original' => null, 'edited' => null];
                 [$mimeRaw, $data] = explode(',', $file['original']);
                 $mime     = str_replace(['data:', ';base64'], '', $mimeRaw);
