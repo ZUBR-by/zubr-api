@@ -361,11 +361,33 @@ class Decision
     {
         $result = [];
         foreach ($this->outcome as $outcome) {
-            if (! in_array($outcome['type'], ['arrest', 'fine'])) {
+            if (! in_array($outcome['type'], ['arrest', 'fine', 'fines_rub'])) {
                 continue;
             }
-            if ($this->aftermathType === 'arrest') {
-                $result[] = sprintf('%s сут.', (int) $outcome['amount']);
+            if ($outcome['type'] === 'arrest') {
+                if ($this->category === 'administrative') {
+                    $result[] = sprintf(
+                        '%s сут.' . ($outcome['extra'] ? ',' . $outcome['extra'] : ''),
+                        (int) $outcome['amount']
+                    );
+                } else {
+                    if ($outcome['amount'] >= 365) {
+                        $result[] = sprintf(
+                            '%s лет.' . ($outcome['extra'] ? ',' . $outcome['extra'] : ''),
+                            round($outcome['amount'] / 365, 1)
+                        );
+                    } else {
+                        $result[] = sprintf(
+                            '%s месяцев.' . ($outcome['extra'] ? ',' . $outcome['extra'] : ''),
+                            round($outcome['amount'] / 30, 1)
+                        );
+                    }
+                }
+
+                continue;
+            }
+            if ($outcome['type'] === 'fines_rub') {
+                $result[] = sprintf('%s руб.', (float) $outcome['amount']);
                 continue;
             }
             $result[] = sprintf('%s б.в.', (int) $outcome['amount']);

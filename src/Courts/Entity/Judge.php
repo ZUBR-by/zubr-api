@@ -268,30 +268,33 @@ class Judge
             if ($decision->getCategory() === 'criminal') {
                 continue;
             }
-            if ($decision->getAftermathType() === 'arrest') {
-                $arrests += $decision->getAftermathAmount();
-                continue;
+            $outcomes = $decision->getOutcome();
+            foreach ($outcomes as $outcome) {
+                if ($outcome['type'] === 'arrest') {
+                    $arrests += $outcome['amount'];
+                    continue;
+                }
+                $rate = 0;
+                switch ($decision->timestamp()->format('Y')) {
+                    case '2021':
+                        $rate = 29;
+                        break;
+                    case '2020':
+                        $rate = 27;
+                        break;
+                    case '2019':
+                        $rate = 25.5;
+                        break;
+                    case '2018':
+                        $rate = 24.5;
+                        break;
+                    case '2017':
+                        $rate = 23;
+                        break;
+                }
+                $finesRub += $rate * $outcome['amount'];
+                $fines    += $outcome['amount'];
             }
-            $rate = 0;
-            switch ($decision->timestamp()->format('Y')) {
-                case '2021':
-                    $rate = 29;
-                    break;
-                case '2020':
-                    $rate = 27;
-                    break;
-                case '2019':
-                    $rate = 25.5;
-                    break;
-                case '2018':
-                    $rate = 24.5;
-                    break;
-                case '2017':
-                    $rate = 23;
-                    break;
-            }
-            $finesRub += $rate * $decision->getAftermathAmount();
-            $fines    += $decision->getAftermathAmount();
         }
         return [
             'fines'     => $fines,

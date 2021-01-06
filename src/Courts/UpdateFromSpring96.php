@@ -173,18 +173,19 @@ TAG
                             return;
                         }
                         $data['judge_id'] = $judgeId;
+                        $outcome        = ['type' => 'arrest', 'amount' => 0, 'extra' => ''];
                         if ($decision['arrest']) {
-                            $data['aftermath_type']   = 'arrest';
-                            $data['aftermath_amount'] = preg_replace('/[^0-9]/', '', $decision['arrest']);
+                            $outcome['type']   = 'arrest';
+                            $outcome['amount'] = preg_replace('/[^0-9]/', '', $decision['arrest']);
                         } else {
-                            $aftermath = explode('б.в.', trim($decision['fine']));
-                            if (count($aftermath) == 2) {
-                                $data['aftermath_type']   = 'fine';
-                                $data['aftermath_amount'] = trim($aftermath[0]);
+                            $outcomeTmp = explode('б.в.', trim($decision['fine']));
+                            if (count($outcomeTmp) == 2) {
+                                $outcome['type']   = 'fine';
+                                $outcome['amount'] = trim($outcomeTmp[0]);
                             } else {
-                                $data['aftermath_extra'] = $decision['fine'];
+                                $outcome['extra'] = $decision['fine'];
                             }
-                            $aftermath['extra'] = trim($decision['fine']);
+                            $outcome['extra'] = trim($decision['fine']);
                         }
                         $data['articles'] = json_encode(
                             array_unique(
@@ -222,6 +223,7 @@ TAG
                         if (! $keys) {
                             $keys = array_keys($data);
                         }
+                        $data['outcome'] = json_encode([$outcome]);
                         $this->connection->insert('decisions', $data);
                     });
                 } catch (Throwable $e) {

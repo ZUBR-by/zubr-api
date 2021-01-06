@@ -24,19 +24,19 @@ class GetStatisticsAction extends AbstractController
         $year = $request->query->getDigits('year', 2020);
         [$arrests, $fines] = $this->connection->fetchNumeric(
             <<<'TAG'
-SELECT 
-    IFNULL((SELECT SUM(aftermath_amount) 
-       FROM decisions 
-      WHERE category = 'administrative' 
-            AND hidden_at IS NULL 
-            AND YEAR(timestamp) IN (:year) 
-            AND aftermath_type = 'arrest'), 0),
-    IFNULL((SELECT SUM(aftermath_amount)
-       FROM decisions 
-      WHERE category = 'administrative' 
-            AND hidden_at IS NULL 
-            AND YEAR(timestamp) IN (:year) 
-            AND aftermath_type = 'fine'), 0)
+SELECT
+    IFNULL((SELECT SUM(JSON_EXTRACT(outcome, '$[0].amount'))
+            FROM decisions
+            WHERE category = 'administrative'
+              AND hidden_at IS NULL
+              AND YEAR(timestamp) IN (:year)
+              AND JSON_EXTRACT(outcome, '$[0].type') = 'arrest'), 0),
+    IFNULL((SELECT SUM(JSON_EXTRACT(outcome, '$[0].amount'))
+            FROM decisions
+            WHERE category = 'administrative'
+              AND hidden_at IS NULL
+              AND YEAR(timestamp) IN (:year)
+              AND JSON_EXTRACT(outcome, '$[0].type') = 'fine'), 0)
 TAG
             ,
             [

@@ -25,18 +25,17 @@ class EditDecision extends AbstractController
             $this->dbal->update(
                 'decisions',
                 [
-                    'full_name'        => trim(implode(
+                    'full_name'    => trim(implode(
                         ' ',
                         [$content['lastName'], $content['firstName'], $content['middleName']]
                     )),
-                    'is_sensitive'     => (int) $content['isSensitive'],
-                    'aftermath_type'   => $content['aftermathType'],
-                    'aftermath_amount' => $content['aftermathAmount'],
-                    'description'      => $content['description'],
-                    'source'           => $content['source'] ?? 'zubr',
-                    'category'         => $content['category'] ?? 'administrative',
-                    'hidden_at'         => isset($content['isHidden']) && $content['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
-                    'timestamp'        => (new DateTime($content['timestamp']))->format('Y-m-d'),
+                    'is_sensitive' => (int) $content['isSensitive'],
+                    'outcome'      => json_encode($content['outcome'], JSON_UNESCAPED_UNICODE),
+                    'description'  => $content['description'],
+                    'source'       => $content['source'] ?? 'zubr',
+                    'category'     => $content['category'] ?? 'administrative',
+                    'hidden_at'    => isset($content['isHidden']) && $content['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
+                    'timestamp'    => (new DateTime($content['timestamp']))->format('Y-m-d'),
                 ],
                 ['id' => $content['id']]
             );
