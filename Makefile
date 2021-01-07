@@ -26,3 +26,7 @@ frontends:
 prepare_deploy:
 	ansible-playbook -i infrastructure/hosts_all \
 		-u root infrastructure/deploy_only.yaml -v -K
+
+
+generate_content:
+	php bin/console generate:content
