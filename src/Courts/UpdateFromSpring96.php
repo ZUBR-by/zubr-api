@@ -46,7 +46,7 @@ class UpdateFromSpring96 extends Command
                 true
             );
             $translationsArticles = json_decode(
-                file_get_contents($this->projectDir . '/datasets/courts/articles.json'),
+                file_get_contents($this->projectDir . '/datasets/courts/articles_translations.json'),
                 true
             );
             $missingCourts        = [];
@@ -173,7 +173,7 @@ TAG
                             return;
                         }
                         $data['judge_id'] = $judgeId;
-                        $outcome        = ['type' => 'arrest', 'amount' => 0, 'extra' => ''];
+                        $outcome          = ['type' => 'arrest', 'amount' => 0, 'extra' => ''];
                         if ($decision['arrest']) {
                             $outcome['type']   = 'arrest';
                             $outcome['amount'] = preg_replace('/[^0-9]/', '', $decision['arrest']);
