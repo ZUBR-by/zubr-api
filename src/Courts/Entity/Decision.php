@@ -45,7 +45,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  * @ApiFilter(
  *     OrderFilter::class,
- *     properties={"aftermath_type", "timestamp", "category", "id"}, arguments={"orderParameterName"="sort"}
+ *     properties={"timestamp", "category", "id"}, arguments={"orderParameterName"="sort"}
  * )
  * @ApiFilter(ExistsFilter::class, properties={"hiddenAt"})
  * */
@@ -104,29 +104,6 @@ class Decision
      * @ORM\Column(type="boolean", nullable=false, options={"default" : "1"})
      */
     private $isSensitive = true;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
-     * @Groups({"public", "private"})
-     */
-    private $aftermathType;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
-     * @Groups({"public", "private"})
-     */
-    private $aftermathExtra;
-
-    /**
-     * @var string|null
-     * @ORM\Column(type="decimal", nullable=true, precision=8, scale=2)
-     * @Groups({"public", "private"})
-     */
-    private $aftermathAmount;
 
     /**
      * @var array
@@ -208,21 +185,6 @@ class Decision
         return $this->judge;
     }
 
-    public function getAftermathType() : string
-    {
-        return $this->aftermathType;
-    }
-
-    public function getAftermathExtra() : string
-    {
-        return $this->aftermathExtra;
-    }
-
-    public function getAftermathAmount() : ?string
-    {
-        return $this->aftermathAmount;
-    }
-
     public function getAttachments() : array
     {
         $links = [];
@@ -256,28 +218,6 @@ class Decision
             return sprintf('%s %s %s', mb_substr($chunks[0], 0, 1), $chunks[1] ?? '', $chunks[2] ?? '');
         }
         return $this->fullName;
-    }
-
-    /**
-     * @Groups({"public", "private"})
-     */
-    public function getAftermath() : string
-    {
-        if (! in_array($this->aftermathType, [
-            'arrest',
-            'fine',
-            'moral_compensation',
-            'damage_compensation',
-            'expertise_compensation',
-            'warning',
-        ])) {
-            return '';
-        }
-        if ($this->aftermathType === 'arrest') {
-            return sprintf('%s сут.', (int) $this->aftermathAmount);
-        }
-
-        return sprintf('%s б.в.', (int) $this->aftermathAmount);
     }
 
     /**

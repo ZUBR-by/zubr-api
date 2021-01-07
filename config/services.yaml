@@ -91,9 +91,6 @@ services:
   App\Courts\LoadCourts:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
-  App\Courts\Decisions\LoadDecisions:
-    arguments: [ '@doctrine.dbal.courts_connection' ]
-
   App\Courts\UpdateJudges:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
