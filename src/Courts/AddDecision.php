@@ -35,6 +35,7 @@ class AddDecision extends AbstractController
             ],
         ]);
         $this->dbal->transactional(function () use ($json, $s3) {
+            usort($json['outcome'], fn($a, $b) => $a['type'] <=> $b['type']);
             $this->dbal->insert(
                 'decisions',
                 [

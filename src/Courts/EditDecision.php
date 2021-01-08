@@ -22,6 +22,7 @@ class EditDecision extends AbstractController
     {
         $content = json_decode($request->getContent(), true);
         try {
+            usort($content['outcome'], fn($a, $b) => $a['type'] <=> $b['type']);
             $this->dbal->update(
                 'decisions',
                 [
