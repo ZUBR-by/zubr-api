@@ -67,12 +67,12 @@ TAG
             <<<'TAG'
 SELECT COUNT(1) as num, LEFT(court_id, 2) as region, YEAR(timestamp) as year
   FROM decisions
- WHERE YEAR(timestamp) IN (2019, 2020) AND court_id IS NOT NULL AND hidden_at IS NULL 
+ WHERE YEAR(timestamp) IN (2019, 2020, 2021) AND court_id IS NOT NULL AND hidden_at IS NULL 
 GROUP BY LEFT(court_id, 2), YEAR(timestamp)
 ORDER BY year DESC, region
 TAG
         );
-        $result    = ['2019' => [], '2020' => []];
+        $result    = ['2019' => [], '2020' => [], '2021' => []];
         $maxYear   = 2019;
         $maxRegion = '07';
         $maxValue  = 0;
