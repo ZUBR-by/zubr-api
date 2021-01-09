@@ -23,13 +23,17 @@ class EditDecision extends AbstractController
         $content = json_decode($request->getContent(), true);
         try {
             usort($content['outcome'], fn($a, $b) => $a['type'] <=> $b['type']);
+            $fullName = $content['lastName'];
+            if (isset($content['firstName'])) {
+                $fullName .= ' ' . $content['firstName'];
+                if (isset($content['middleName'])) {
+                    $fullName .= ' ' . $content['middleName'];
+                }
+            }
             $this->dbal->update(
                 'decisions',
                 [
-                    'full_name'    => trim(implode(
-                        ' ',
-                        [$content['lastName'], $content['firstName'], $content['middleName']]
-                    )),
+                    'full_name'    => trim($fullName),
                     'is_sensitive' => (int) $content['isSensitive'],
                     'outcome'      => json_encode($content['outcome'], JSON_UNESCAPED_UNICODE),
                     'description'  => $content['description'],
