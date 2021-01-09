@@ -113,7 +113,6 @@ $FRONTEND_HOST
 def notifyBuild(def buildStatus) {
     // set default of build status
     buildStatus =  buildStatus ?: 'SUCCESS'
-    env.PREVIOUS_BUILD_RESULT = currentBuild.rawBuild.getPreviousBuild()?.getResult().toString()
     GIT_COMMIT_MSG = sh (
         script: "git log --format=format:%s -1 ${GIT_COMMIT}",
         returnStdout: true
