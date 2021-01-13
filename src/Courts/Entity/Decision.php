@@ -326,6 +326,10 @@ class Decision
 
                 continue;
             }
+            if ($outcome['type'] === 'confiscation') {
+                $result[] = sprintf('конфискация %s %s', (int) $outcome['amount'], $outcome['extra']);
+                continue;
+            }
             if ($outcome['type'] === 'fines_rub') {
                 $result[] = sprintf('%s руб.', (float) $outcome['amount']);
                 continue;
