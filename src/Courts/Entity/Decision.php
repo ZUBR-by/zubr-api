@@ -38,6 +38,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     SearchFilter::class,
  *     properties={
  *         "court.id": "exact",
+ *         "category": "exact",
  *         "judge.id": "exact",
  *         "source": "exact",
  *         "fullName": "partial"
