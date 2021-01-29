@@ -41,7 +41,7 @@ class UpdateMembersOrganizations extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $last = $this->connection->fetchColumn('SELECT checksum FROM datasets_update ORDER BY created_at');
+        $last = $this->connection->fetchOne('SELECT checksum FROM datasets_update ORDER BY created_at DESC LIMIT 1');
         $sha1 = '';
         foreach ([
                      '00_parent',

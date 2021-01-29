@@ -42,3 +42,26 @@ function mapArraySQLFriendly(array $value) : array
 
     return $result;
 }
+
+function courtsDatasetsContentHash() : string
+{
+    $overall = '';
+    $paths   = [
+        'court',
+        'judge',
+        'judge_tag',
+        'history/01-brest',
+        'history/02-vitebsk',
+        'history/03-gomel',
+        'history/04-grodno',
+        'history/05-minsk',
+        'history/06-mogilev',
+        'history/07-capital',
+        'history/removed',
+    ];
+    foreach ($paths as $file) {
+        $overall .= sha1_file(__DIR__ . '/../datasets/courts/' . $file . '.csv');
+    }
+
+    return $overall;
+}

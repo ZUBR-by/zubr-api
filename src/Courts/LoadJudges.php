@@ -54,9 +54,7 @@ class LoadJudges extends Command
             [
                 'id',
                 'full_name',
-                'photo_url',
                 'photo_origin',
-                'description',
                 'comment',
                 'tags',
             ]

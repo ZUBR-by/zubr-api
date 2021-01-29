@@ -7,10 +7,16 @@ pipeline {
     stage('Build') {
         environment {
             APP_ENV            = 'prod'
-            DATABASE_HOST      = credentials('API_DATABASE_HOST')
-            DATABASE_USER      = credentials('API_DATABASE_USER')
-            DATABASE_PASSWORD  = credentials('API_DATABASE_PASSWORD')
-            DATABASE_NAME      = credentials('API_DATABASE_NAME')
+            DATABASE_HOST_PROD      = credentials('API_DATABASE_HOST')
+            DATABASE_USER_PROD      = credentials('API_DATABASE_USER')
+            DATABASE_PASSWORD_PROD  = credentials('API_DATABASE_PASSWORD')
+            DATABASE_NAME_PROD      = credentials('API_DATABASE_NAME')
+
+            DATABASE_HOST_CI      = '127.0.0.1'
+            DATABASE_USER_CI      = credentials('DATABASE_USER_CI')
+            DATABASE_PASSWORD_CI  = credentials('DATABASE_PASSWORD_CI')
+            DATABASE_NAME_CI      = credentials('DATABASE_NAME_CI')
+
             SENTRY_DSN         = credentials('API_SENTRY_DSN')
             S3_SECRET          = credentials('API_S3_SECRET')
             S3_KEY             = credentials('API_S3_KEY')
@@ -22,15 +28,16 @@ pipeline {
         agent {
             dockerfile {
                 filename 'infrastructure/php/gitlab/Dockerfile'
-                args '-v $HOME/composer_cache:/.composer/cache'
+                args '-u 0:0 -v $HOME/composer_cache:/.composer/cache --network="host"'
             }
         }
         steps {
+            sh 'rm -f .env'
             writeFile file: '.env', text: """
-DATABASE_USER=${DATABASE_USER}
-DATABASE_PASSWORD=${DATABASE_PASSWORD}
-DATABASE_HOST=${DATABASE_HOST}
-DATABASE_NAME=${DATABASE_NAME}
+DATABASE_USER=${DATABASE_USER_CI}
+DATABASE_PASSWORD=${DATABASE_PASSWORD_CI}
+DATABASE_HOST=${DATABASE_HOST_CI}
+DATABASE_NAME=${DATABASE_NAME_CI}
 DATABASE_PORT=3306
 
 CORS_ALLOW_ORIGIN=*
@@ -60,6 +67,52 @@ $PUBLIC_KEY
             sh 'printf "{}" >> config/credentials/google_credentials.json'
             sh 'composer install -a --no-dev --no-interaction'
 
+            sh 'php bin/console --em=courts d:s:drop -f'
+            sh 'php bin/console --em=courts d:schema:create -n'
+            sh 'php bin/console load:courts'
+            sh 'php bin/console load:judges'
+            sh 'php bin/console load:history'
+
+            script {
+                def CONTENT_HASH = sh (
+                    script: "curl https://api.zubr.in/courts/hash",
+                    returnStdout: true
+                ).trim()
+
+                env.HAS_CHANGE = sh (
+                    script: "php bin/console courts:content:compare $CONTENT_HASH",
+                    returnStdout: true
+                ).trim().toBoolean()
+            }
+
+
+            sh 'make generate_content'
+
+            writeFile file: '.env', text: """
+DATABASE_USER=${DATABASE_USER_PROD}
+DATABASE_PASSWORD=${DATABASE_PASSWORD_PROD}
+DATABASE_HOST=${DATABASE_HOST_PROD}
+DATABASE_NAME=${DATABASE_NAME_PROD}
+DATABASE_PORT=3306
+
+CORS_ALLOW_ORIGIN=*
+SENTRY_DSN=${SENTRY_DSN}
+APP_ENV=${APP_ENV}
+APP_DEBUG=false
+AWS_SECRET=${S3_SECRET}
+AWS_KEY=${S3_KEY}
+BUCKET_MEMBERS=${BUCKET_MEMBERS}
+BUCKET_REPORTS=${BUCKET_REPORTS}
+
+JWT_PASSPHRASE=${JWT_PASSPHRASE}
+UNSUBSCRIBE_SECRET=${UNSUBSCRIBE_SECRET}
+SHEET_ID=1
+
+JWT_SECRET_KEY=%kernel.project_dir%/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
+GIT_COMMIT=${GIT_COMMIT}
+
+"""
             stash includes: 'config/**', name: 'config'
             stash includes: 'vendor/**', name: 'vendor'
             stash includes: 'infrastructure/ansistrano_master_deploy.yml', name: 'infra'
@@ -73,12 +126,21 @@ $PUBLIC_KEY
             stash includes: '*.pem', name: 'keys'
         }
     }
+    stage('Pre-Deploy') {
+        when {
+            environment name: 'HAS_CHANGE', value: 'false';
+        }
+        steps {
+            echo 'No changes!'
+        }
+    }
     stage('Deploy') {
         environment {
              BACKEND_HOST   = credentials('API_BACKEND_HOST')
              FRONTEND_HOST  = credentials('FRONTEND_HOST')
         }
         steps {
+            echo "Test: ${env.HAS_CHANGE}"
             unstash 'vendor'
             unstash 'infra'
             unstash 'src'
@@ -112,7 +174,6 @@ $FRONTEND_HOST
 }
 
 def notifyBuild(def buildStatus) {
-    // set default of build status
     buildStatus =  buildStatus ?: 'SUCCESS'
     GIT_COMMIT_MSG = sh (
         script: "git log --format=format:%s -1 ${GIT_COMMIT}",
