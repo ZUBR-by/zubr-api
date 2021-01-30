@@ -80,7 +80,7 @@ $PUBLIC_KEY
                 ).trim()
 
                 env.HAS_CHANGE = sh (
-                    script: "php bin/console courts:content:compare $CONTENT_HASH -v",
+                    script: "php bin/console courts:content:compare $CONTENT_HASH",
                     returnStdout: true
                 ).trim().length() > 0
             }
