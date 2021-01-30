@@ -80,11 +80,10 @@ $PUBLIC_KEY
                 ).trim()
 
                 env.HAS_CHANGE = sh (
-                    script: "php bin/console courts:content:compare $CONTENT_HASH",
+                    script: "php bin/console courts:content:compare $CONTENT_HASH -v",
                     returnStdout: true
-                ).trim().toBoolean()
+                ).trim().length() > 0
             }
-
 
             sh 'make generate_content'
 
@@ -126,21 +125,13 @@ GIT_COMMIT=${GIT_COMMIT}
             stash includes: '*.pem', name: 'keys'
         }
     }
-    stage('Pre-Deploy') {
-        when {
-            environment name: 'HAS_CHANGE', value: 'false';
-        }
-        steps {
-            echo 'No changes!'
-        }
-    }
     stage('Deploy') {
         environment {
              BACKEND_HOST   = credentials('API_BACKEND_HOST')
              FRONTEND_HOST  = credentials('FRONTEND_HOST')
         }
         steps {
-            echo "Test: ${env.HAS_CHANGE}"
+            echo "${HAS_CHANGE}"
             unstash 'vendor'
             unstash 'infra'
             unstash 'src'
@@ -155,7 +146,7 @@ GIT_COMMIT=${GIT_COMMIT}
 $FRONTEND_HOST
 $BACKEND_HOST
 [data]
-$FRONTEND_HOST
+$FRONTEND_HOST HAS_CHANGE=$HAS_CHANGE
             """
             ansiblePlaybook(
                   playbook: 'infrastructure/ansistrano_master_deploy.yml',
@@ -163,6 +154,14 @@ $FRONTEND_HOST
                   credentialsId: "SSH_PRIVATE_KEY",
                   hostKeyChecking: false
             )
+        }
+    }
+    stage('Post-Deploy') {
+        when {
+            environment name: 'HAS_CHANGE', value: 'true';
+        }
+        steps {
+            build job: 'ZUBR-COURTS'
         }
     }
   }
