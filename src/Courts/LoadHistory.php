@@ -209,6 +209,7 @@ class LoadHistory extends Command
                     [$row[3]]
                 );
                 if (! $courtCode) {
+                    $output->writeln('Missing_court: ' . $row[3]);
                     $missingCourts[] = $row[3];
                     continue;
                 }
@@ -226,7 +227,7 @@ class LoadHistory extends Command
                 [$lname, $fname] = $chunks;
                 $judge = $this->connection->fetchAssociative(
                     'SELECT * FROM judge WHERE LEFT(full_name, :ln) = :fn',
-                    ['fn' => $lname, 'ln' => mb_strlen($lname)]
+                    ['fn' => $lname . ' ', 'ln' => mb_strlen($lname . ' ')]
                 );
                 if (! $judge) {
                     $output->writeln('not_found_judge: ' . $row[0]);
