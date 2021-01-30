@@ -30,9 +30,9 @@ class LoadHistory extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure() : void
     {
-        $this->setName('load:history')->addOption('force');
+        $this->setName('load:history');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) : int
@@ -53,7 +53,6 @@ class LoadHistory extends Command
 
     private function prepareInserts(string $dataset, int $limit, OutputInterface $output) : array
     {
-        $inserts = [];
         $fields  = implode(
             ', ',
             [
@@ -197,9 +196,6 @@ class LoadHistory extends Command
 
         foreach (['07-capital', '06-mogilev', '05-minsk', '04-grodno', '03-gomel', '02-vitebsk', '01-brest'] as $file) {
             $all = array_merge($all, $parse($file));
-        }
-        if (count($all) > 0) {
-            $inserts[] = $sql . implode(',' . PHP_EOL, $all);
         }
 
         $removed = (function () use (&$missingCourts, $limit, $sql, $output) {
