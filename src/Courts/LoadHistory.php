@@ -227,7 +227,7 @@ class LoadHistory extends Command
                 [$lname, $fname] = $chunks;
                 $judge = $this->connection->fetchAssociative(
                     'SELECT * FROM judge WHERE LEFT(full_name, :ln) = :fn',
-                    ['fn' => $lname . ' ', 'ln' => mb_strlen($lname . ' ')]
+                    ['fn' => $lname . ' ' . $fname, 'ln' => mb_strlen($lname . ' ' . $fname)]
                 );
                 if (! $judge) {
                     $output->writeln('not_found_judge: ' . $row[0]);
