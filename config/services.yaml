@@ -101,3 +101,5 @@ services:
     decorates: 'api_platform.jsonld.normalizer.item'
     arguments: [ '@App\Normalizer.inner' ]
 
+  App\Courts\GetTop10JudgesCommand:
+    arguments: [ '@doctrine.dbal.courts_connection' ]

@@ -49,7 +49,7 @@ class UpdateJudges extends Command
             foreach ($inserts as $index => $insert) {
                 $this->connection->executeQuery($insert);
             }
-            $output->writeln('Tags: ' . count($inserts));
+            $output->writeln('Tags: ' . $inserts[0]);
         });
 
         return 0;
