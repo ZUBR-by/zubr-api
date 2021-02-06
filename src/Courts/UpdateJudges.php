@@ -30,69 +30,39 @@ class UpdateJudges extends Command
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
         $this->connection->transactional(function () use ($output, $input) {
-            $limit = ($input->getOption('verbose') ? 1 : 10000);
+            $tags = [];
+            foreach (iterateCSV($this->projectDir . '/datasets/courts/judge_tag.csv') as [$judge, $tagsString]) {
+                $tmp = explode('|', $tagsString);
+                sort($tmp);
+                $tags[$judge] = $tmp;
+            }
             foreach (iterateCSV($this->projectDir . '/datasets/courts/judge.csv') as [$csvId, $fullName, , $phone]) {
                 $id = $this->connection->fetchOne('SELECT id FROM judge WHERE id = ?', [$csvId]);
                 if (! $id) {
                     $output->writeln($csvId);
-                    $this->connection->insert('judge', ['id' => $csvId, 'full_name' => $fullName, 'comment' => $phone]);
+                    $this->connection->insert(
+                        'judge',
+                        [
+                            'id'        => $csvId,
+                            'full_name' => $fullName,
+                            'comment'   => $phone,
+                            'tags'      => \json_encode($tags[$id] ?? []),
+                        ]
+                    );
                 } else {
                     $this->connection->update(
                         'judge',
-                        ['full_name' => $fullName, 'comment' => $phone],
+                        [
+                            'full_name' => $fullName,
+                            'comment'   => $phone,
+                            'tags'      => \json_encode($tags[$id] ?? []),
+                        ],
                         ['id' => $csvId]
                     );
                 }
             }
-            $this->connection->executeQuery('DELETE FROM judge_tag');
-            $inserts = $this->prepareInsertsTag('judge_tag', $limit);
-            foreach ($inserts as $index => $insert) {
-                $this->connection->executeQuery($insert);
-            }
-            $output->writeln('Tags: ' . $inserts[0]);
         });
 
         return 0;
-    }
-
-    private function prepareInsertsTag(string $dataset, int $limit) : array
-    {
-        $inserts    = [];
-        $rows       = [];
-        $rowCounter = 0;
-        $lineNumber = 0;
-        $fields     = implode(
-            ', ',
-            [
-                'judge_id',
-                'tag',
-            ]
-        );
-        $sql        = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
-        foreach (iterateCSV($this->projectDir . '/datasets/courts/judge_tag.csv') as $row) {
-            $lineNumber++;
-            $row  = array_map(
-                function ($s) {
-                    return $s === 'NULL' ? 'NULL' : '"' . str_replace('"', '\"', $s) . '"';
-                },
-                $row
-            );
-            $temp = '(' . implode(',', $row) . ')';
-            if ($temp === '("")') {
-                throw new \LogicException();
-            }
-            $rows[] = $temp;
-            if ($rowCounter === $limit) {
-                $inserts[]  = $sql . implode(',' . PHP_EOL, $rows);
-                $rows       = [];
-                $rowCounter = 0;
-            }
-            $rowCounter++;
-        }
-        if (count($rows) > 0) {
-            $inserts[] = $sql . implode(',' . PHP_EOL, $rows);
-        }
-
-        return $inserts;
     }
 }
