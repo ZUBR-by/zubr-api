@@ -10,3 +10,11 @@
         user: deploy
         job: "APP_ENV=prod php /api/current/bin/console load:spring96 2>&1 | /usr/bin/logger -t cron-daily"
         cron_file: spring96-autoupdate
+    - name: cron for top 10
+      cron:
+        name: judges-top10
+        hour: "1"
+        minute: "40"
+        user: deploy
+        job: "APP_ENV=prod php /api/current/bin/console j:t 2>&1 | /usr/bin/logger -t cron-daily"
+        cron_file: judges-top10
