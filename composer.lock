@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "44c62c7d286f2bd314e69f658c3a6c38",
+    "content-hash": "14cbfb172617f84ee2ec66f931bbc568",
     "packages": [
         {
             "name": "api-platform/api-pack",
@@ -4309,6 +4309,60 @@
             "time": "2020-10-13T07:37:17+00:00"
         },
         {
+            "name": "smalot/pdfparser",
+            "version": "v0.18.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smalot/pdfparser.git",
+                "reference": "b47f26425e32a814dc1ee55e3ce669b9e73b8458"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/b47f26425e32a814dc1ee55e3ce669b9e73b8458",
+                "reference": "b47f26425e32a814dc1ee55e3ce669b9e73b8458",
+                "shasum": ""
+            },
+            "require": {
+                "ext-zlib": "*",
+                "php": ">=5.6",
+                "symfony/polyfill-mbstring": "^1.18"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "symfony/phpunit-bridge": "^5.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Smalot\\PdfParser\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastien MALOT",
+                    "email": "sebastien@malot.fr"
+                }
+            ],
+            "description": "Pdf parser library. Can read and extract information from pdf file.",
+            "homepage": "https://www.pdfparser.org",
+            "keywords": [
+                "extract",
+                "parse",
+                "parser",
+                "pdf",
+                "text"
+            ],
+            "support": {
+                "issues": "https://github.com/smalot/pdfparser/issues",
+                "source": "https://github.com/smalot/pdfparser/tree/v0.18.1"
+            },
+            "time": "2021-01-05T08:52:07+00:00"
+        },
+        {
             "name": "symfony/apache-pack",
             "version": "v1.0.1",
             "source": {
@@ -8264,5 +8318,6 @@
     "platform-dev": [],
     "platform-overrides": {
         "php": "7.4"
-    }
+    },
+    "plugin-api-version": "2.0.0"
 }

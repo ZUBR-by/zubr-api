@@ -287,6 +287,9 @@
             "config/packages/sentry.yaml"
         ]
     },
+    "smalot/pdfparser": {
+        "version": "v0.18.1"
+    },
     "symfony/apache-pack": {
         "version": "1.0",
         "recipe": {

@@ -11,7 +11,9 @@
         "endroid/qr-code": "^3.9",
         "google/apiclient": "2.*",
         "lexik/jwt-authentication-bundle": "^2.7",
+        "scienta/doctrine-json-functions": "^4.1",
         "sentry/sentry-symfony": "^3.5",
+        "smalot/pdfparser": "^0.18.1",
         "symfony/apache-pack": "^1.0",
         "symfony/console": "5.0.*",
         "symfony/css-selector": "5.0.*",
@@ -23,8 +25,7 @@
         "symfony/security-bundle": "5.0.*",
         "symfony/yaml": "5.0.*",
         "treinetic/imageartist": "^1.0",
-        "scienta/doctrine-json-functions" : "^4.1",
-        "wapmorgan/morphos" : "3.*"
+        "wapmorgan/morphos": "3.*"
     },
     "config": {
         "preferred-install": {
