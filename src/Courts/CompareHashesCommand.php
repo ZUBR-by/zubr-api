@@ -21,7 +21,13 @@ class CompareHashesCommand extends Command
         $actual  = trim($input->getArgument('actual'));
         $current = courtsDatasetsContentHash();
         $output->writeln($current, OutputInterface::VERBOSITY_VERBOSE);
-        if (courtsDatasetsContentHash() !== $actual) {
+        $expected = courtsDatasetsContentHash();
+        file_put_contents('test', <<<TEST
+$expected
+$actual
+TEST
+);
+        if ($expected !== $actual) {
             $output->writeln('diff');
         }
 
