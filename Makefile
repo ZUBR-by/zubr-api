@@ -15,7 +15,7 @@ compose-composer-ci:
 	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 composer install -a --no-dev --no-interaction
 
 compose-console:
-	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 bin/console $(COMMAND)
+	@docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 bin/console $(COMMAND)
 
 compose-phpunit:
 	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 vendor/bin/phpunit
