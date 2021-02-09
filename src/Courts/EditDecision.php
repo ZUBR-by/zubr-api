@@ -6,6 +6,7 @@ use App\ErrorHandler;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Throwable;
 
@@ -18,7 +19,7 @@ class EditDecision extends AbstractController
         $this->dbal = $dbal;
     }
 
-    public function __invoke(Request $request, ErrorHandler $errorHandler)
+    public function __invoke(Request $request, ErrorHandler $errorHandler) : JsonResponse
     {
         $content = json_decode($request->getContent(), true);
         try {
