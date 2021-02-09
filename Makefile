@@ -1,7 +1,32 @@
 PROJECT=zubr
+# --user "$$(id -u):$$(id -g)"
 compose:
 	COMPOSE_PROJECT_NAME=zubr \
-	docker-compose -f infrastructure/docker-compose.yml -f infrastructure/docker-compose.dev.yml up -d
+	docker-compose -f infrastructure/docker-compose.yml \
+	-f infrastructure/docker-compose.dev.yml up -d
+
+compose-composer:
+	docker exec zubr_php_1 composer install
+
+compose-composer-ci:
+	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 composer install -a --no-dev --no-interaction
+
+compose-console:
+	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 bin/console $(COMMAND)
+
+compose-up-ci:
+	COMPOSE_PROJECT_NAME=zubr \
+	docker-compose -f infrastructure/docker-compose.yml \
+	-f infrastructure/docker-compose.dev.yml \
+	-f infrastructure/docker-compose.db.yml \
+	up -d
+
+compose-down-ci:
+	COMPOSE_PROJECT_NAME=zubr \
+	docker-compose -f infrastructure/docker-compose.yml \
+	-f infrastructure/docker-compose.dev.yml \
+	-f infrastructure/docker-compose.db.yml \
+	down
 
 compose-dev-build:
 	COMPOSE_PROJECT_NAME=zubr \

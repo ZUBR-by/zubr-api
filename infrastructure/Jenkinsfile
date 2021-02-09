@@ -1,39 +1,37 @@
 pipeline {
-  agent any
-  options {
-    disableConcurrentBuilds()
-  }
-  stages {
-    stage('Build') {
-        environment {
-            APP_ENV            = 'prod'
-            DATABASE_HOST_PROD      = credentials('API_DATABASE_HOST')
-            DATABASE_USER_PROD      = credentials('API_DATABASE_USER')
-            DATABASE_PASSWORD_PROD  = credentials('API_DATABASE_PASSWORD')
-            DATABASE_NAME_PROD      = credentials('API_DATABASE_NAME')
+    agent any
+    options {
+        disableConcurrentBuilds()
+    }
+    stages {
+        stage('Build') {
+            environment {
+                APP_ENV            = 'prod'
+                DATABASE_HOST_PROD      = credentials('API_DATABASE_HOST')
+                DATABASE_USER_PROD      = credentials('API_DATABASE_USER')
+                DATABASE_PASSWORD_PROD  = credentials('API_DATABASE_PASSWORD')
+                DATABASE_NAME_PROD      = credentials('API_DATABASE_NAME')
 
-            DATABASE_HOST_CI      = '127.0.0.1'
-            DATABASE_USER_CI      = credentials('DATABASE_USER_CI')
-            DATABASE_PASSWORD_CI  = credentials('DATABASE_PASSWORD_CI')
-            DATABASE_NAME_CI      = credentials('DATABASE_NAME_CI')
+                DATABASE_HOST_CI      = 'database'
+                DATABASE_USER_CI      = 'root'
+                DATABASE_PASSWORD_CI  = credentials('DATABASE_PASSWORD_CI')
+                DATABASE_NAME_CI      = credentials('DATABASE_NAME_CI')
 
-            SENTRY_DSN         = credentials('API_SENTRY_DSN')
-            S3_SECRET          = credentials('API_S3_SECRET')
-            S3_KEY             = credentials('API_S3_KEY')
-            BUCKET_MEMBERS     = credentials('API_BUCKET_MEMBERS')
-            BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
-            JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
-            UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
-        }
-        agent {
-            dockerfile {
-                filename 'infrastructure/php/gitlab/Dockerfile'
-                args '-u 0:0 -v $HOME/composer_cache:/.composer/cache --network="host"'
+                DATABASE_PASSWORD_COMPOSE = credentials('DATABASE_PASSWORD_CI')
+                DATABASE_NAME_COMPOSE     = credentials('DATABASE_NAME_CI')
+
+                SENTRY_DSN         = credentials('API_SENTRY_DSN')
+                S3_SECRET          = credentials('API_S3_SECRET')
+                S3_KEY             = credentials('API_S3_KEY')
+                BUCKET_MEMBERS     = credentials('API_BUCKET_MEMBERS')
+                BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
+                JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
+                UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
             }
-        }
-        steps {
-            sh 'rm -f .env'
-            writeFile file: '.env', text: """
+            steps {
+                sh 'rm -f .env'
+                sh 'make compose-up-ci'
+                writeFile file: '.env', text: """
 DATABASE_USER=${DATABASE_USER_CI}
 DATABASE_PASSWORD=${DATABASE_PASSWORD_CI}
 DATABASE_HOST=${DATABASE_HOST_CI}
@@ -58,36 +56,36 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
 GIT_COMMIT=${GIT_COMMIT}
 
 """
-            writeFile file: 'private.pem', text: """
+                writeFile file: 'private.pem', text: """
 $PRIVATE_KEY
 """
-            writeFile file: 'public.pem', text: """
+                writeFile file: 'public.pem', text: """
 $PUBLIC_KEY
 """
-            sh 'printf "{}" >> config/credentials/google_credentials.json'
-            sh 'composer install -a --no-dev --no-interaction'
+                sh 'printf "{}" >> config/credentials/google_credentials.json'
+                sh 'make compose-composer-ci'
 
-            sh 'php bin/console --em=courts d:s:drop -f'
-            sh 'php bin/console --em=courts d:schema:create -n'
-            sh 'php bin/console load:courts'
-            sh 'php bin/console load:judges'
-            sh 'php bin/console load:history'
+                sh 'make compose-console COMMAND="--em=courts d:s:drop -f"'
+                sh 'make compose-console COMMAND="--em=courts d:schema:create -n"'
+                sh 'make compose-console COMMAND="load:courts"'
+                sh 'make compose-console COMMAND="load:judges"'
+                sh 'make compose-console COMMAND="load:history"'
 
-            script {
-                def CONTENT_HASH = sh (
-                    script: "curl https://api.zubr.in/courts/hash",
-                    returnStdout: true
-                ).trim()
+                script {
+                    def CONTENT_HASH = sh (
+                        script: "curl https://api.zubr.in/courts/hash",
+                        returnStdout: true
+                    ).trim()
 
-                env.HAS_CHANGE = sh (
-                    script: "php bin/console courts:content:compare $CONTENT_HASH",
-                    returnStdout: true
-                ).trim().length() > 0
-            }
+                    env.HAS_CHANGE = sh (
+                        script: "make compose-console COMMAND='courts:content:compare $CONTENT_HASH'",
+                        returnStdout: true
+                    ).trim().length() > 0
+                }
 
-            sh 'make generate_content'
+                sh 'make compose-console COMMAND="generate:content"'
 
-            writeFile file: '.env', text: """
+                writeFile file: '.env', text: """
 DATABASE_USER=${DATABASE_USER_PROD}
 DATABASE_PASSWORD=${DATABASE_PASSWORD_PROD}
 DATABASE_HOST=${DATABASE_HOST_PROD}
@@ -112,77 +110,78 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
 GIT_COMMIT=${GIT_COMMIT}
 
 """
-            stash includes: 'config/**', name: 'config'
-            stash includes: 'vendor/**', name: 'vendor'
-            stash includes: 'infrastructure/ansistrano_master_deploy.yml', name: 'infra'
-            stash includes: 'src/**', name: 'src'
-            stash includes: 'public/**', name: 'public'
+                stash includes: 'config/**', name: 'config'
+                stash includes: 'vendor/**', name: 'vendor'
+                stash includes: 'infrastructure/ansistrano_master_deploy.yml', name: 'infra'
+                stash includes: 'src/**', name: 'src'
+                stash includes: 'public/**', name: 'public'
 
-            stash includes: 'templates/**', name: 'templates'
-            stash includes: 'var/**', name: 'var'
-            stash includes: 'bin/**', name: 'bin'
-            stash includes: '.env', name: 'env'
-            stash includes: '*.pem', name: 'keys'
+                stash includes: 'templates/**', name: 'templates'
+                stash includes: 'var/**', name: 'var'
+                stash includes: 'bin/**', name: 'bin'
+                stash includes: '.env', name: 'env'
+                stash includes: '*.pem', name: 'keys'
+            }
         }
-    }
-    stage('Deploy') {
-        environment {
-             BACKEND_HOST   = credentials('API_BACKEND_HOST')
-             FRONTEND_HOST  = credentials('FRONTEND_HOST')
-        }
-        steps {
-            echo "${HAS_CHANGE}"
-            unstash 'vendor'
-            unstash 'infra'
-            unstash 'src'
-            unstash 'public'
-            unstash 'config'
-            unstash 'templates'
-            unstash 'var'
-            unstash 'bin'
-            unstash 'env'
-            unstash 'keys'
-            writeFile file: 'hosts', text: """
+        stage('Deploy') {
+            environment {
+                BACKEND_HOST   = credentials('API_BACKEND_HOST')
+                FRONTEND_HOST  = credentials('FRONTEND_HOST')
+            }
+            steps {
+                echo "${HAS_CHANGE}"
+                unstash 'vendor'
+                unstash 'infra'
+                unstash 'src'
+                unstash 'public'
+                unstash 'config'
+                unstash 'templates'
+                unstash 'var'
+                unstash 'bin'
+                unstash 'env'
+                unstash 'keys'
+                writeFile file: 'hosts', text: """
 $FRONTEND_HOST
 $BACKEND_HOST
 [data]
 $FRONTEND_HOST HAS_CHANGE=$HAS_CHANGE
-            """
-            ansiblePlaybook(
-                  playbook: 'infrastructure/ansistrano_master_deploy.yml',
-                  inventory: "hosts",
-                  credentialsId: "SSH_PRIVATE_KEY",
-                  hostKeyChecking: false
-            )
+"""
+
+                ansiblePlaybook(
+                      playbook: 'infrastructure/ansistrano_master_deploy.yml',
+                      inventory: "hosts",
+                      credentialsId: "SSH_PRIVATE_KEY",
+                      hostKeyChecking: false
+                )
+            }
+        }
+        stage('Post-Deploy') {
+            when {
+                environment name: 'HAS_CHANGE', value: 'true';
+            }
+            steps {
+                build job: 'ZUBR-COURTS'
+            }
         }
     }
-    stage('Post-Deploy') {
-        when {
-            environment name: 'HAS_CHANGE', value: 'true';
-        }
-        steps {
-            build job: 'ZUBR-COURTS'
+    post {
+        always {
+            sh 'make compose-down-ci'
+            notifyBuild(currentBuild.result)
         }
     }
-  }
-  post {
-    always {
-      notifyBuild(currentBuild.result)
-    }
-  }
 }
 
 def notifyBuild(def buildStatus) {
     buildStatus =  buildStatus ?: 'SUCCESS'
-    GIT_COMMIT_MSG = sh (
-        script: "git log --format=format:%s -1 ${GIT_COMMIT}",
-        returnStdout: true
-    ).trim()
+//    GIT_COMMIT_MSG = sh (
+//        script: "git log --format=format:%s -1 ${GIT_COMMIT}",
+//        returnStdout: true
+//    ).trim()
     def emojiMap = [ 'STARTED': '#F0FFFF', 'SUCCESS': '✅', 'FAILURE': '🛑' ]
     telegramSend """
 ${emojiMap[buildStatus]} *${JOB_NAME}* - ${buildStatus}
 ${env.RUN_DISPLAY_URL}
-${GIT_COMMIT_MSG}
     """
 }
 

@@ -1,9 +1,11 @@
 version: '3.4'
 services:
   database:
-    image: mariadb:10.4
+    image: mariadb:10.5
     environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD_COMPOSE}
+      MYSQL_DATABASE: ${DATABASE_NAME_COMPOSE}
     networks:
       - app-network
+    volumes:
+      - ./database/script.sql:/docker-entrypoint-initdb.d/1-scheme.sql

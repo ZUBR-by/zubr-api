@@ -8,7 +8,6 @@ services:
     volumes:
       - "../.:/app"
     # output of `echo $(id -u ${USER}):$(id -g ${USER})`
-    user: ${HOST_UID}
     command: ["php-fpm"]
     networks:
       - app-network
