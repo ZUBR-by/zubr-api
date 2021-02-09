@@ -8,24 +8,28 @@ compose:
 compose-composer:
 	docker exec zubr_php_1 composer install
 
+compose-composer-dev-ci:
+	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 composer install
+
 compose-composer-ci:
 	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 composer install -a --no-dev --no-interaction
 
 compose-console:
 	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 bin/console $(COMMAND)
 
+compose-phpunit:
+	docker exec --user "$$(id -u):$$(id -g)" zubr_php_1 vendor/bin/phpunit
+
 compose-up-ci:
 	COMPOSE_PROJECT_NAME=zubr \
 	docker-compose -f infrastructure/docker-compose.yml \
 	-f infrastructure/docker-compose.dev.yml \
-	-f infrastructure/docker-compose.db.yml \
 	up -d
 
 compose-down-ci:
 	COMPOSE_PROJECT_NAME=zubr \
 	docker-compose -f infrastructure/docker-compose.yml \
 	-f infrastructure/docker-compose.dev.yml \
-	-f infrastructure/docker-compose.db.yml \
 	down
 
 compose-dev-build:

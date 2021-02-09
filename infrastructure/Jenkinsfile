@@ -4,23 +4,18 @@ pipeline {
         disableConcurrentBuilds()
     }
     stages {
-        stage('Build') {
+        stage('Prepare') {
             environment {
-                APP_ENV            = 'prod'
-                DATABASE_HOST_PROD      = credentials('API_DATABASE_HOST')
-                DATABASE_USER_PROD      = credentials('API_DATABASE_USER')
-                DATABASE_PASSWORD_PROD  = credentials('API_DATABASE_PASSWORD')
-                DATABASE_NAME_PROD      = credentials('API_DATABASE_NAME')
+                APP_ENV            = 'test'
 
-                DATABASE_HOST_CI      = 'database'
-                DATABASE_USER_CI      = 'root'
+                DATABASE_HOST_CI      = '172.17.0.1'
+                DATABASE_USER_CI      = credentials('DATABASE_USER_CI')
                 DATABASE_PASSWORD_CI  = credentials('DATABASE_PASSWORD_CI')
                 DATABASE_NAME_CI      = credentials('DATABASE_NAME_CI')
 
                 DATABASE_PASSWORD_COMPOSE = credentials('DATABASE_PASSWORD_CI')
                 DATABASE_NAME_COMPOSE     = credentials('DATABASE_NAME_CI')
 
-                SENTRY_DSN         = credentials('API_SENTRY_DSN')
                 S3_SECRET          = credentials('API_S3_SECRET')
                 S3_KEY             = credentials('API_S3_KEY')
                 BUCKET_MEMBERS     = credentials('API_BUCKET_MEMBERS')
@@ -39,7 +34,6 @@ DATABASE_NAME=${DATABASE_NAME_CI}
 DATABASE_PORT=3306
 
 CORS_ALLOW_ORIGIN=*
-SENTRY_DSN=${SENTRY_DSN}
 APP_ENV=${APP_ENV}
 APP_DEBUG=false
 AWS_SECRET=${S3_SECRET}
@@ -62,15 +56,38 @@ $PRIVATE_KEY
                 writeFile file: 'public.pem', text: """
 $PUBLIC_KEY
 """
+                sh 'docker ps'
                 sh 'printf "{}" >> config/credentials/google_credentials.json'
-                sh 'make compose-composer-ci'
+                sh 'make compose-composer-dev-ci'
 
                 sh 'make compose-console COMMAND="--em=courts d:s:drop -f"'
                 sh 'make compose-console COMMAND="--em=courts d:schema:create -n"'
                 sh 'make compose-console COMMAND="load:courts"'
                 sh 'make compose-console COMMAND="load:judges"'
                 sh 'make compose-console COMMAND="load:history"'
+                sh 'make compose-phpunit'
+            }
 
+        }
+        stage('Build') {
+            environment {
+                APP_ENV            = 'prod'
+
+                DATABASE_HOST_PROD      = credentials('API_DATABASE_HOST')
+                DATABASE_USER_PROD      = credentials('API_DATABASE_USER')
+                DATABASE_PASSWORD_PROD  = credentials('API_DATABASE_PASSWORD')
+                DATABASE_NAME_PROD      = credentials('API_DATABASE_NAME')
+
+                SENTRY_DSN         = credentials('API_SENTRY_DSN')
+
+                S3_SECRET          = credentials('API_S3_SECRET')
+                S3_KEY             = credentials('API_S3_KEY')
+                BUCKET_MEMBERS     = credentials('API_BUCKET_MEMBERS')
+                BUCKET_REPORTS     = credentials('API_BUCKET_REPORTS')
+                JWT_PASSPHRASE     = credentials('API_JWT_PASSPHRASE')
+                UNSUBSCRIBE_SECRET = credentials('API_UNSUBSCRIBE_SECRET')
+            }
+            steps {
                 script {
                     def CONTENT_HASH = sh (
                         script: "curl https://api.zubr.in/courts/hash",
@@ -82,7 +99,7 @@ $PUBLIC_KEY
                         returnStdout: true
                     ).trim().length() > 0
                 }
-
+                sh 'make compose-composer-ci'
                 sh 'make compose-console COMMAND="generate:content"'
 
                 writeFile file: '.env', text: """

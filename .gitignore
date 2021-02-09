@@ -34,3 +34,7 @@ infrastructure/*.retry
 !infrastructure/credentials/.gitkeep
 
 infrastructure/database/migration.sql
+
+###> phpunit/phpunit ###
+.phpunit.result.cache
+###< phpunit/phpunit ###
