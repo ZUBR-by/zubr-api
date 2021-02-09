@@ -127,17 +127,6 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
 GIT_COMMIT=${GIT_COMMIT}
 
 """
-                stash includes: 'config/**', name: 'config'
-                stash includes: 'vendor/**', name: 'vendor'
-                stash includes: 'infrastructure/ansistrano_master_deploy.yml', name: 'infra'
-                stash includes: 'src/**', name: 'src'
-                stash includes: 'public/**', name: 'public'
-
-                stash includes: 'templates/**', name: 'templates'
-                stash includes: 'var/**', name: 'var'
-                stash includes: 'bin/**', name: 'bin'
-                stash includes: '.env', name: 'env'
-                stash includes: '*.pem', name: 'keys'
             }
         }
         stage('Deploy') {
@@ -147,16 +136,6 @@ GIT_COMMIT=${GIT_COMMIT}
             }
             steps {
                 echo "${HAS_CHANGE}"
-                unstash 'vendor'
-                unstash 'infra'
-                unstash 'src'
-                unstash 'public'
-                unstash 'config'
-                unstash 'templates'
-                unstash 'var'
-                unstash 'bin'
-                unstash 'env'
-                unstash 'keys'
                 writeFile file: 'hosts', text: """
 $FRONTEND_HOST
 $BACKEND_HOST
@@ -191,10 +170,10 @@ $FRONTEND_HOST HAS_CHANGE=$HAS_CHANGE
 
 def notifyBuild(def buildStatus) {
     buildStatus =  buildStatus ?: 'SUCCESS'
-//    GIT_COMMIT_MSG = sh (
-//        script: "git log --format=format:%s -1 ${GIT_COMMIT}",
-//        returnStdout: true
-//    ).trim()
+    GIT_COMMIT_MSG = sh (
+        script: "git log --format=format:%s -1 ${GIT_COMMIT}",
+        returnStdout: true
+    ).trim()
     def emojiMap = [ 'STARTED': '#F0FFFF', 'SUCCESS': '✅', 'FAILURE': '🛑' ]
     telegramSend """
 ${emojiMap[buildStatus]} *${JOB_NAME}* - ${buildStatus}
