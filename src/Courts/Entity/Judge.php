@@ -108,6 +108,7 @@ class Judge
 
     /**
      * @var array
+     * @Groups({"private"})
      * @ORM\Column(type="json", nullable=false, options={"default" : "[]"})
      */
     private $tags;

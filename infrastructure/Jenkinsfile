@@ -100,6 +100,7 @@ $PUBLIC_KEY
                     ).trim().length() > 0
                 }
                 sh 'make compose-composer-ci'
+                sh 'make compose-console COMMAND="cache:clear"'
                 sh 'make compose-console COMMAND="generate:content"'
 
                 writeFile file: '.env', text: """
