@@ -56,12 +56,13 @@ class Judge
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"private"})
      */
     private $id;
 
     /**
      * @var string
-     *
+     * @Groups({"private"})
      * @ORM\Column(type="string", length=255, nullable=false, options={"default" : ""})
      */
     private $fullName;
