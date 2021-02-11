@@ -26,8 +26,7 @@ use App\Courts\JudgeTagsFilter;
  * @ApiResource(
  *    collectionOperations={
  *     "get"={
- *          "normalization_context"={"groups"="get"},
- *          "cache_headers"={"max_age"=60, "shared_max_age"=120}
+ *          "normalization_context"={"groups"="get"}
  *      }
  *    },
  *    itemOperations={"get"={"normalization_context"={"groups"="get"}}}
