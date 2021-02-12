@@ -28,6 +28,7 @@ class Court
     /**
      * @var string
      *
+     * @Groups({"history", "private"})
      * @ORM\Column(name="id", type="string", nullable=false, length=20)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -41,7 +42,7 @@ class Court
 
     /**
      * @var string
-     * @Groups({"history"})
+     * @Groups({"history", "private"})
      * @ORM\Column(type="string", length=500, nullable=false)
      */
     private $name;
