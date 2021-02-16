@@ -2,13 +2,12 @@
 
 namespace App\Courts;
 
-use App\ErrorHandler;
-use Aws\S3\S3Client;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AddDecision extends AbstractController
 {
@@ -19,22 +18,14 @@ class AddDecision extends AbstractController
         $this->dbal = $dbal;
     }
 
-    public function __invoke(Request $request, ErrorHandler $errorHandler)
+    public function __invoke(Request $request, EventDispatcherInterface $eventDispatcher) : Response
     {
         if (! $this->getUser()) {
             return new Response('', 401);
         }
 
         $json = json_decode($request->getContent(), true);
-        $s3   = new S3Client([
-            'region'      => 'eu-north-1',
-            'version'     => 'latest',
-            'credentials' => [
-                'key'    => $_ENV['AWS_KEY'],
-                'secret' => $_ENV['AWS_SECRET'],
-            ],
-        ]);
-        $this->dbal->transactional(function () use ($json, $s3) {
+        $this->dbal->transactional(function () use ($json, $eventDispatcher) {
             usort($json['outcome'], fn($a, $b) => $a['type'] <=> $b['type']);
             $this->dbal->insert(
                 'decisions',
@@ -46,7 +37,9 @@ class AddDecision extends AbstractController
                         $json['middleName']
                     ),
                     'is_sensitive' => (int) $json['isSensitive'],
-                    'hidden_at'    => isset($json['isHidden']) && $json['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
+                    'hidden_at'    => isset($json['isHidden']) && $json['isHidden'] === true
+                        ? (new DateTime())->format('Y-m-d H:i:s')
+                        : null,
                     'timestamp'    => (new DateTime($json['timestamp']))->format('Y-m-d'),
                     'judge_id'     => $json['judge'],
                     'court_id'     => $json['court'],
@@ -64,51 +57,8 @@ class AddDecision extends AbstractController
                     ),
                 ]
             );
-            $id = $this->dbal->lastInsertId();
-
-            foreach ($json['attachments'] as $file) {
-                if (! isset($file['original'])) {
-                    continue;
-                }
-                if ($file['original'] === null) {
-                    continue;
-                }
-                $objects = ['decision_id' => $id, 'original' => null, 'edited' => null];
-                [$mimeRaw, $data] = explode(',', $file['original']);
-                $mime     = str_replace(['data:', ';base64'], '', $mimeRaw);
-                $response = $s3->putObject([
-                    'Bucket'      => 'courtsby',
-                    'ContentType' => $mime,
-                    'Key'         => $id . '_' . sha1(base64_decode($data)),
-                    'Body'        => base64_decode($data),
-                    'ACL'         => 'private',
-                ]);
-
-                $objects['original'] = json_encode([
-                    'type' => $mime,
-                    'url'  => $response['ObjectURL'],
-                ]);
-
-                if ($file['edited']) {
-                    [$mimeRaw, $data] = explode(',', $file['edited']);
-                    $mime     = str_replace(['data:', ';base64'], '', $mimeRaw);
-                    $response = $s3->putObject([
-                        'Bucket'      => 'courtsby',
-                        'ContentType' => $mime,
-                        'Key'         => $id . '_' . sha1(base64_decode($data)),
-                        'Body'        => base64_decode($data),
-                        'ACL'         => 'public-read',
-                    ]);
-
-                    $objects['edited'] = json_encode([
-                        'type' => $mime,
-                        'url'  => $response['ObjectURL'],
-                    ]);
-                }
-                $this->dbal->insert('attachment', $objects);
-            }
-
-
+            $id = (int) $this->dbal->lastInsertId();
+            $eventDispatcher->dispatch(new UploadEvent($id, $json['attachments'] ?? []), 'uploadAttachment');
         });
 
         return $this->json([]);

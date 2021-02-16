@@ -106,3 +106,6 @@ services:
 
   App\Courts\FindMissingJudgesCommand:
     arguments: [ '@doctrine.dbal.courts_connection' ]
+
+  App\Courts\UploadAttachment:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
