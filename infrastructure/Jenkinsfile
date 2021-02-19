@@ -45,18 +45,11 @@ JWT_PASSPHRASE=${JWT_PASSPHRASE}
 UNSUBSCRIBE_SECRET=${UNSUBSCRIBE_SECRET}
 SHEET_ID=1
 
-JWT_SECRET_KEY=%kernel.project_dir%/private.pem
-JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 GIT_COMMIT=${GIT_COMMIT}
 
 """
-                writeFile file: 'private.pem', text: """
-$PRIVATE_KEY
-"""
-                writeFile file: 'public.pem', text: """
-$PUBLIC_KEY
-"""
-                sh 'docker ps'
                 sh 'printf "{}" >> config/credentials/google_credentials.json'
                 sh 'make compose-composer-dev-ci'
 
@@ -121,8 +114,8 @@ JWT_PASSPHRASE=${JWT_PASSPHRASE}
 UNSUBSCRIBE_SECRET=${UNSUBSCRIBE_SECRET}
 SHEET_ID=1
 
-JWT_SECRET_KEY=%kernel.project_dir%/private.pem
-JWT_PUBLIC_KEY=%kernel.project_dir%/public.pem
+JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 GIT_COMMIT=${GIT_COMMIT}
 
 """
@@ -136,6 +129,14 @@ GIT_COMMIT=${GIT_COMMIT}
             }
             steps {
                 echo "${HAS_CHANGE}"
+                withCredentials([
+                    file(credentialsId: 'JWT_PRIVATE_KEY', variable: 'my_private_key'),
+                    file(credentialsId: 'JWT_PUBLIC_KEY', variable: 'my_public_key'),
+                ]) {
+                    writeFile file: 'config/jwt/private.pem', text: readFile(my_private_key)
+                    writeFile file: 'config/jwt/public.pem', text: readFile(my_public_key)
+                }
+
                 writeFile file: 'hosts', text: """
 $FRONTEND_HOST
 $BACKEND_HOST
