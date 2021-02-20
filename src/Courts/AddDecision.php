@@ -5,9 +5,11 @@ namespace App\Courts;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class AddDecision extends AbstractController
 {
@@ -25,22 +27,35 @@ class AddDecision extends AbstractController
         }
 
         $json = json_decode($request->getContent(), true);
-        $this->dbal->transactional(function () use ($json, $eventDispatcher) {
+
+        try {
+            $timestamp = (new DateTime($json['timestamp']))->format('Y-m-d');
+        } catch (Throwable $e) {
+            return new JsonResponse(['error' => 'invalid_timestamp']);
+        }
+
+        $fullName = trim(sprintf(
+            '%s %s %s',
+            $json['lastName'],
+            $json['firstName'],
+            $json['middleName']
+        ));
+
+        if (! $fullName) {
+            return new JsonResponse(['error' => 'empty_fullname']);
+        }
+
+        $this->dbal->transactional(function () use ($json, $eventDispatcher, $fullName, $timestamp) {
             usort($json['outcome'], fn($a, $b) => $a['type'] <=> $b['type']);
             $this->dbal->insert(
                 'decisions',
                 [
-                    'full_name'    => sprintf(
-                        '%s %s %s',
-                        $json['lastName'],
-                        $json['firstName'],
-                        $json['middleName']
-                    ),
+                    'full_name'    => $fullName,
                     'is_sensitive' => (int) $json['isSensitive'],
                     'hidden_at'    => isset($json['isHidden']) && $json['isHidden'] === true
                         ? (new DateTime())->format('Y-m-d H:i:s')
                         : null,
-                    'timestamp'    => (new DateTime($json['timestamp']))->format('Y-m-d'),
+                    'timestamp'    => $timestamp,
                     'judge_id'     => $json['judge'],
                     'court_id'     => $json['court'],
                     'source'       => $json['source'] ?? 'zubr',
