@@ -1,6 +1,8 @@
 {
+    "name": "zubr/zubr-api",
     "type": "project",
     "license": "proprietary",
+    "description": "ZUBR API",
     "require": {
         "php": "^7.4",
         "ext-ctype": "*",
@@ -24,11 +26,11 @@
         "symfony/security-bundle": "5.0.*",
         "symfony/yaml": "5.0.*",
         "treinetic/imageartist": "^1.0",
-        "wapmorgan/morphos": "3.*"
+        "wapmorgan/morphos": "3.*",
+        "symfony/css-selector": "5.0.*",
+        "symfony/browser-kit": "5.0.*"
     },
     "require-dev": {
-        "symfony/browser-kit": "5.0.*",
-        "symfony/css-selector": "5.0.*",
         "phpunit/phpunit": "^9.0"
     },
     "config": {
