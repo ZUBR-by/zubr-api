@@ -25,8 +25,8 @@ class GetTop10JudgesCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output) : int
     {
-        $this->dbal->transactional(function () : void {
-            $this->dbal->executeStatement(
+        $this->dbal->transactional(function () use ($output) : void {
+            $count = $this->dbal->executeStatement(
                 <<<'TAG'
 UPDATE judge 
    SET tags = JSON_REMOVE(tags, REPLACE(JSON_SEARCH(tags, 'one', 'top'), '"', '')) 
@@ -34,7 +34,7 @@ UPDATE judge
 TAG
 
             );
-
+            $output->writeln('Удалено: ' . $count);
             $judges = $this->dbal->fetchFirstColumn(
                 <<<'TAG'
   SELECT judge_id, COUNT(1) as num
@@ -47,10 +47,11 @@ TAG
 
             );
             foreach ($judges as $judge) {
-                $this->dbal->executeStatement(
+                $result = $this->dbal->executeStatement(
                     'UPDATE judge SET tags = JSON_ARRAY_APPEND(tags,\'$\', \'top\') WHERE id = ?',
                     [$judge]
                 );
+                $output->writeln('Судья ' . $judge . ' - ' . $result);
             }
         });
         $output->writeln('Успешно сформирован новый топ-10');
