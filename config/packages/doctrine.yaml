@@ -8,7 +8,8 @@ doctrine:
                 password: '%env(DATABASE_PASSWORD)%'
                 port: '%env(DATABASE_PORT)%'
                 host: '%env(DATABASE_HOST)%'
-                server_version: '10.5'
+                server_version: '%env(DATABASE_VERSION)%'
+                driver: '%env(DATABASE_DRIVER)%'
                 default_table_options:
                     collate: utf8mb4_general_ci
             courts:
@@ -17,7 +18,8 @@ doctrine:
                 password: '%env(DATABASE_PASSWORD)%'
                 port: '%env(DATABASE_PORT)%'
                 host: '%env(DATABASE_HOST)%'
-                server_version: '10.5'
+                server_version: '%env(DATABASE_VERSION)%'
+                driver: '%env(DATABASE_DRIVER)%'
                 default_table_options:
                     collate: utf8mb4_general_ci
     orm:
