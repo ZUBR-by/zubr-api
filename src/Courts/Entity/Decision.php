@@ -48,7 +48,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     OrderFilter::class,
  *     properties={"timestamp", "category", "id"}, arguments={"orderParameterName"="sort"}
  * )
- * @ApiFilter(ExistsFilter::class, properties={"hiddenAt"})
+ * @ApiFilter(ExistsFilter::class, properties={"hiddenAt", "judge"})
  * */
 class Decision
 {
