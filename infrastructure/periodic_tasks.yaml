@@ -17,4 +17,12 @@
         minute: "40"
         user: deploy
         job: "APP_ENV=prod php /api/current/bin/console j:t 2>&1 | /usr/bin/logger -t cron-daily"
-        cron_file: judges-top10
+        cron_file: courts
+    - name: trials-dissidentby
+      cron:
+        name: trials-dissidentby
+        hour: "*/1"
+        minute: "5"
+        user: deploy
+        job: "APP_ENV=prod php /api/current/bin/console c:t:d 2>&1 | /usr/bin/logger -t cron-daily"
+        cron_file: courts
