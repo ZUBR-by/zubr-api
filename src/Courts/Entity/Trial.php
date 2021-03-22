@@ -2,9 +2,11 @@
 
 namespace App\Courts\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
 /**
  * @ORM\Table(name="trial", schema="courts")
@@ -12,6 +14,10 @@ use Doctrine\ORM\Mapping as ORM;
  * @ApiResource(
  *    collectionOperations={"get"},
  *    itemOperations={"get"}
+ * )
+ * @ApiFilter(
+ *     OrderFilter::class,
+ *     properties={"timestamp", "person", "id"}, arguments={"orderParameterName"="sort"}
  * )
  * */
 class Trial
@@ -56,9 +62,14 @@ class Trial
         return $this->id;
     }
 
-    public function getTimestamp() : DateTime
+    public function getTimestamp() : string
     {
-        return $this->timestamp;
+        return $this->timestamp->format(DATE_ATOM);
+    }
+
+    public function getTimestampFormatted() : ?string
+    {
+        return $this->timestamp->format('d.m.Y H:i');
     }
 
     public function getPerson() : string
