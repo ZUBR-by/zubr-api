@@ -6,13 +6,13 @@ commission_print:
   path: /commissions/{id}/print
   methods: ['GET']
   defaults:
-    _controller: App\Commission\GeneratePoster
+    _controller: App\Elections\Commission\GeneratePoster
 
 commission_print_text:
   path: /commissions/{id}/print/text
   methods: ['GET']
   defaults:
-    _controller: App\Commission\GeneratePosterWithoutPhoto
+    _controller: App\Elections\Commission\GeneratePosterWithoutPhoto
 
 commission_upload:
   path: /commission/{id}/upload
