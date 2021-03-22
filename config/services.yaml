@@ -109,3 +109,6 @@ services:
 
   App\Courts\UploadAttachment:
     arguments: [ '@doctrine.dbal.courts_connection' ]
+
+  App\Courts\LoadTrialsDissidentBy:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
