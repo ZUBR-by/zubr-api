@@ -71,6 +71,12 @@ class Trial
      */
     private $timestamp;
 
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     * @Groups({"private"})
+     */
+    private int $source = 0;
+
     public function getId() : int
     {
         return $this->id;
