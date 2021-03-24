@@ -22,7 +22,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "security"="is_granted('ROLE_USER')"
  *      },
  *    },
- *    itemOperations={"get"}
+ *    itemOperations={
+ *      "get",
+ *      "patch"={"security"="is_granted('ROLE_USER')"},
+ *      "delete"={"security"="is_granted('ROLE_USER')"}
+ *    }
  * )
  * @ApiFilter(
  *     OrderFilter::class,
