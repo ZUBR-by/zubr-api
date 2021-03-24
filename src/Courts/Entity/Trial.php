@@ -59,6 +59,13 @@ class Trial
     private ?Court $court;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Courts\Entity\Judge")
+     * @ORM\JoinColumn(name="judge_id", referencedColumnName="id")
+     * @Groups({"private"})
+     */
+    private ?Judge $judge;
+
+    /**
      * @ORM\Column(type="json", nullable=false, options={"default" : "[]"})
      * @Groups({"private"})
      */
@@ -110,6 +117,11 @@ class Trial
         return $this->court;
     }
 
+    public function getJudge() : ?Judge
+    {
+        return $this->judge;
+    }
+
     public function getArticles() : array
     {
         return $this->articles;
@@ -123,6 +135,11 @@ class Trial
     public function setCourt(?Court $court) : void
     {
         $this->court = $court;
+    }
+
+    public function setJudge(?Judge $court) : void
+    {
+        $this->judge = $court;
     }
 
     public function setTimestamp(DateTime $timestamp) : void
