@@ -5,6 +5,7 @@ namespace App\Courts;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\AbstractContextAwareFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use App\Courts\Entity\Judge;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 
 final class JudgeSortFilter extends AbstractContextAwareFilter
@@ -36,7 +37,12 @@ final class JudgeSortFilter extends AbstractContextAwareFilter
                     break;
                 case 'decisions':
                     $queryBuilder->addSelect('COUNT(d.id) as HIDDEN num');
-                    $queryBuilder->leftJoin('o.decisions', 'd');
+                    $queryBuilder->leftJoin(
+                        'o.decisions',
+                        'd',
+                        Join::WITH,
+                        'd.category = \'administrative\' AND d.hiddenAt IS NULL'
+                    );
                     $queryBuilder->groupBy('o.id');
                     $queryBuilder->addOrderBy('num', $order);
                     break;
