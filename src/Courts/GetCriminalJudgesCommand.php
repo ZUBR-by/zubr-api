@@ -20,7 +20,7 @@ class GetCriminalJudgesCommand extends Command
 
     protected function configure() : void
     {
-        $this->setName('judges:top10');
+        $this->setName('judges:criminal');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output) : int
