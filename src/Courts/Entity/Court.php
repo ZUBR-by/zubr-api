@@ -139,13 +139,13 @@ class Court
         /** @var Decision[] $decisions */
         $decisions = $this->decisions->toArray();
         foreach ($decisions as $decision) {
-            $count++;
             if ($decision->getHiddenAt() !== null) {
                 continue;
             }
             if ($decision->getCategory() === 'criminal') {
                 continue;
             }
+            $count++;
             $outcomes = $decision->getOutcome();
             foreach ($outcomes as $outcome) {
                 if ($outcome['type'] === 'arrest') {
