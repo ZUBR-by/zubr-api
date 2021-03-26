@@ -104,6 +104,9 @@ services:
   App\Courts\GetTop10JudgesCommand:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
+  App\Courts\GetCriminalJudgesCommand:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+
   App\Courts\FindMissingJudgesCommand:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
