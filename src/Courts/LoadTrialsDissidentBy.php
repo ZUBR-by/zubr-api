@@ -73,7 +73,7 @@ class LoadTrialsDissidentBy extends Command
             }
             foreach ($data as $trial) {
                 foreach ($trial['prisoners'] as $person) {
-                    $court   = $map[$trial['address']] ?? null;
+                    $court   = $trial['court_id'] ?? $map[$trial['address']] ?? null;
                     $comment = $trial['address'];
                     if ($court) {
                         $comment = '';
