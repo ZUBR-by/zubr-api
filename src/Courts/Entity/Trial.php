@@ -32,7 +32,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
  * @ApiFilter(
  *     OrderFilter::class,
- *     properties={"timestamp", "person", "id"}, arguments={"orderParameterName"="sort"}
+ *     properties={"timestamp", "person", "id", "court.id"}, arguments={"orderParameterName"="sort"}
  * )
  * @ApiFilter(
  *     DateFilter::class,
