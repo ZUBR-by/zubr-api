@@ -7,6 +7,8 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -31,6 +33,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiFilter(
  *     OrderFilter::class,
  *     properties={"timestamp", "person", "id"}, arguments={"orderParameterName"="sort"}
+ * )
+ * @ApiFilter(
+ *     DateFilter::class,
+ *     properties={
+ *         "timestamp"
+ *     }
+ * )
+ * @ApiFilter(
+ *     SearchFilter::class,
+ *     properties={
+ *         "court.id": "start"
+ *     }
  * )
  * */
 class Trial
@@ -96,6 +110,17 @@ class Trial
     public function getTimestamp() : string
     {
         return $this->timestamp->format(DATE_ATOM);
+    }
+
+    /**
+     * @Groups({"private"})
+     * @return array
+     */
+    public function getDatetime() : array
+    {
+        return [
+            'time' => $this->timestamp->format('H:i')
+        ];
     }
 
     /**
