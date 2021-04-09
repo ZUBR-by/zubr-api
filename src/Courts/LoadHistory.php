@@ -194,7 +194,7 @@ class LoadHistory extends Command
             return array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
         };
 
-        foreach (['07-capital', '06-mogilev', '05-minsk', '04-grodno', '03-gomel', '02-vitebsk', '01-brest'] as $file) {
+        foreach (['07-capital', '06-mogilev', '05-minsk', '04-grodno', '03-gomel', '02-vitebsk', '01-brest', 'super'] as $file) {
             $all = array_merge($all, $parse($file));
         }
 

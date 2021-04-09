@@ -58,6 +58,7 @@ function courtsDatasetsContentHash() : string
         'history_regions/06-mogilev',
         'history_regions/07-capital',
         'history_regions/removed',
+        'history_regions/super',
     ];
     foreach ($paths as $file) {
         $overall .= sha1_file(__DIR__ . '/../datasets/courts/' . $file . '.csv');
