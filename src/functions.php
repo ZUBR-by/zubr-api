@@ -50,14 +50,14 @@ function courtsDatasetsContentHash() : string
         'court',
         'judge',
         'judge_tag',
-        'history/01-brest',
-        'history/02-vitebsk',
-        'history/03-gomel',
-        'history/04-grodno',
-        'history/05-minsk',
-        'history/06-mogilev',
-        'history/07-capital',
-        'history/removed',
+        'history_regions/01-brest',
+        'history_regions/02-vitebsk',
+        'history_regions/03-gomel',
+        'history_regions/04-grodno',
+        'history_regions/05-minsk',
+        'history_regions/06-mogilev',
+        'history_regions/07-capital',
+        'history_regions/removed',
     ];
     foreach ($paths as $file) {
         $overall .= sha1_file(__DIR__ . '/../datasets/courts/' . $file . '.csv');
