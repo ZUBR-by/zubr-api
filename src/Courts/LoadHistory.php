@@ -79,7 +79,7 @@ class LoadHistory extends Command
             $rows       = [];
             $courtName  = null;
             $counter = 0;
-            foreach (iterateCSV($this->projectDir . '/datasets/courts/history/' . $dataset . '.csv') as $row) {
+            foreach (iterateCSV($this->projectDir . '/datasets/courts/history_regions/' . $dataset . '.csv') as $row) {
                 $counter++;
                 if (! array_filter($row)) {
                     continue;
