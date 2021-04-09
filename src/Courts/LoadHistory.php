@@ -203,7 +203,7 @@ class LoadHistory extends Command
             $allSpaces  = fn($value) => str_replace(' ', '', $value);
             $longSpaces = fn($value) => preg_replace("/\s\s+/", ' ', $value);
             $rows       = [];
-            foreach (iterateCSV($this->projectDir . '/datasets/courts/history/removed.csv') as $row) {
+            foreach (iterateCSV($this->projectDir . '/datasets/courts/history_regions/removed.csv') as $row) {
                 $courtCode = $this->connection->fetchOne(
                     'SELECT id FROM court WHERE name = ?',
                     [$row[3]]
@@ -235,7 +235,6 @@ class LoadHistory extends Command
                 }
 
                 $decreeNumber = null;
-                $timestamp    = null;
                 $row[2]       = str_replace('N', '№', $row[2]);
                 if (strpos($row[2], '№') !== false) {
                     $row[2] = preg_replace('|[^0-9№.]|', '', $row[2]);
