@@ -115,3 +115,6 @@ services:
 
   App\Courts\LoadTrialsDissidentBy:
     arguments: [ '@doctrine.dbal.courts_connection' ]
+
+  App\Courts\NewHistory:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
