@@ -31,6 +31,12 @@ class EditDecision extends AbstractController
                     $fullName .= ' ' . $content['middleName'];
                 }
             }
+            $extra          = json_decode(
+                $this->dbal->fetchOne('SELECT extra FROM decisions WHERE id = ?', [$content['id']]),
+                true
+            );
+            $extra['links'] = array_filter(array_column($content['links'] ?? [], 'url'));
+
             $this->dbal->update(
                 'decisions',
                 [
@@ -41,6 +47,7 @@ class EditDecision extends AbstractController
                     'source'       => $content['source'] ?? 'zubr',
                     'judge_id'     => $content['judge'],
                     'court_id'     => $content['court'],
+                    'extra'        => json_encode($extra, JSON_UNESCAPED_UNICODE),
                     'articles'     => json_encode($content['articles']),
                     'category'     => $content['category'] ?? 'administrative',
                     'hidden_at'    => isset($content['isHidden']) && $content['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
