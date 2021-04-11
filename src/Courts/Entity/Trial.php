@@ -70,6 +70,12 @@ class Trial
     private string $comment;
 
     /**
+     * @ORM\Column(type="string", length=30, nullable=false, options={"default" : "administrative"})
+     * @Groups({"private"})
+     */
+    private string $category;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Courts\Entity\Court")
      * @ORM\JoinColumn(name="court_id", referencedColumnName="id")
      * @Groups({"private"})
@@ -184,5 +190,15 @@ class Trial
     public function setComment(string $comment) : void
     {
         $this->comment = $comment;
+    }
+
+    public function getCategory() : string
+    {
+        return $this->category;
+    }
+
+    public function setCategory(string $category) : void
+    {
+        $this->category = $category;
     }
 }
