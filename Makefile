@@ -59,3 +59,6 @@ prepare_deploy:
 
 generate_content:
 	php bin/console generate:content
+
+migration-courts:
+	php bin/console --em=courts doctrine:migration:diff
