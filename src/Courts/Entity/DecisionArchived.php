@@ -145,7 +145,7 @@ class DecisionArchived
 
     /**
      * @var Attachment[]|ArrayCollection
-     * @ORM\OneToMany (targetEntity="App\Courts\Entity\Attachment", mappedBy="decision")
+     * @ORM\OneToMany (targetEntity="App\Courts\Entity\Attachment", mappedBy="decisionArchived")
      * @Groups({"public", "private"})
      */
     private $attachments;
