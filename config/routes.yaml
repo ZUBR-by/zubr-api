@@ -49,6 +49,12 @@ edit_decision:
   defaults:
     _controller: App\Courts\EditDecision
 
+archive_decision:
+  path: /api/archive/decision/{id}
+  methods: ['POST']
+  defaults:
+    _controller: App\Courts\ArchiveDecision
+
 statistic:
   path: /statistic
   defaults:

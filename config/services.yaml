@@ -82,6 +82,10 @@ services:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
 
+  App\Courts\ArchiveDecision:
+    arguments: [ '@doctrine.dbal.courts_connection' ]
+    tags: [ 'controller.service_arguments' ]
+
   App\Courts\LoadImagesLocal:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
