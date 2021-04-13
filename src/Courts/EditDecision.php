@@ -31,12 +31,12 @@ class EditDecision extends AbstractController
                     $fullName .= ' ' . $content['middleName'];
                 }
             }
-            $extra          = json_decode(
+            $extra                 = json_decode(
                 $this->dbal->fetchOne('SELECT extra FROM decisions WHERE id = ?', [$content['id']]),
                 true
             );
-            $extra['links'] = array_filter(array_column($content['links'] ?? [], 'url'));
-
+            $extra['links']        = array_filter(array_column($content['links'] ?? [], 'url'));
+            $extra['participants'] = $content['participants'] ?? [];
             $this->dbal->update(
                 'decisions',
                 [

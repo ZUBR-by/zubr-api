@@ -65,8 +65,8 @@ class AddDecision extends AbstractController
                     'articles'     => json_encode($json['articles']),
                     'extra'        => json_encode(
                         [
-                            'links'     => array_filter(array_column($json['links'], 'url')),
-                            'witnesses' => $json['witnesses'] ?? [],
+                            'links'        => array_filter(array_column($json['links'], 'url')),
+                            'participants' => $json['participants'] ?? [],
                         ],
                         JSON_UNESCAPED_UNICODE
                     ),
