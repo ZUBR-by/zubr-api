@@ -40,6 +40,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *         "court.id": "exact",
  *         "category": "exact",
  *         "judge.id": "exact",
+ *         "timestamp": "exact",
  *         "source": "exact",
  *         "fullName": "partial"
  *     }
