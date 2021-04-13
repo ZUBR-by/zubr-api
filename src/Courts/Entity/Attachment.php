@@ -30,6 +30,13 @@ class Attachment
     private $decision;
 
     /**
+     * @var Judge|null
+     * @ORM\ManyToOne(targetEntity="App\Courts\Entity\DecisionArchived")
+     * @ORM\JoinColumn(name="decision_archived_id", referencedColumnName="id")
+     */
+    private $decisionArchived;
+
+    /**
      * @var array
      * @ORM\Column(type="json", nullable=false)
      */
