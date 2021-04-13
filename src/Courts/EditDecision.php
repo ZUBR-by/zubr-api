@@ -50,7 +50,6 @@ class EditDecision extends AbstractController
                     'extra'        => json_encode($extra, JSON_UNESCAPED_UNICODE),
                     'articles'     => json_encode($content['articles']),
                     'category'     => $content['category'] ?? 'administrative',
-                    'hidden_at'    => isset($content['isHidden']) && $content['isHidden'] === true ? (new DateTime())->format('Y-m-d H:i:s') : null,
                     'timestamp'    => (new DateTime($content['timestamp']))->format('Y-m-d'),
                 ],
                 ['id' => $content['id']]
