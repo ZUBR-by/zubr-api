@@ -35,30 +35,30 @@ commission_verify:
   path: /verification
   methods: ['POST']
   defaults:
-    _controller: App\HonestPeople\VerifyObserver
+    _controller: App\Elections\HonestPeople\VerifyObserver
 
 add_decision:
   path: /api/decision
   methods: ['POST']
   defaults:
-    _controller: App\Courts\AddDecision
+    _controller: App\Courts\Decisions\AddDecision
 
 edit_decision:
   path: /api/decision/{id}
   methods: ['PATCH']
   defaults:
-    _controller: App\Courts\EditDecision
+    _controller: App\Courts\Decisions\EditDecision
 
 archive_decision:
   path: /api/archive/decision/{id}
   methods: ['POST']
   defaults:
-    _controller: App\Courts\ArchiveDecision
+    _controller: App\Courts\Decisions\ArchiveDecision
 
 statistic:
   path: /statistic
   defaults:
-    _controller: App\Courts\GetStatisticsAction
+    _controller: App\Courts\Decisions\GetStatisticsAction
 
 unsubscribe:
   path: /unsubscribe/{uid}/{hash}

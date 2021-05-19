@@ -70,26 +70,23 @@ services:
   App\Courts\LoadHistory:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
-  App\Courts\GetStatisticsAction:
+  App\Courts\Decisions\GetStatisticsAction:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
 
-  App\Courts\AddDecision:
+  App\Courts\Decisions\AddDecision:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
 
-  App\Courts\EditDecision:
+  App\Courts\Decisions\EditDecision:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
 
-  App\Courts\ArchiveDecision:
+  App\Courts\Decisions\ArchiveDecision:
     arguments: [ '@doctrine.dbal.courts_connection' ]
     tags: [ 'controller.service_arguments' ]
 
-  App\Courts\LoadImagesLocal:
-    arguments: [ '@doctrine.dbal.courts_connection' ]
-
-  App\Courts\UpdateFromSpring96:
+  App\Courts\Decisions\UpdateFromSpring96:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
   App\Courts\LoadCourts:
@@ -117,5 +114,5 @@ services:
   App\Courts\UploadAttachment:
     arguments: [ '@doctrine.dbal.courts_connection' ]
 
-  App\Courts\LoadTrialsDissidentBy:
+  App\Courts\Trials\LoadFromDissidentBy:
     arguments: [ '@doctrine.dbal.courts_connection' ]

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Courts;
+namespace App\Courts\Decisions;
 
 use App\ErrorHandler;
 use DateTime;

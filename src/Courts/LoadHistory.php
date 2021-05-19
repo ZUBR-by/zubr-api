@@ -12,12 +12,8 @@ use function App\iterateCSV;
 
 class LoadHistory extends Command
 {
-    const COURT          = 0;
-    const FULL_NAME      = 2;
-    const UKAZ           = 4;
-    const PERIOD         = 3;
-    const UNSET_POSITION = 8;
-    const SET_POSITION   = 5;
+    const FULL_NAME = 0;
+    const COURT     = 1;
 
     private Connection $connection;
     private string $projectDir;
@@ -30,30 +26,31 @@ class LoadHistory extends Command
         parent::__construct();
     }
 
-    protected function configure() : void
+    protected function configure(): void
     {
         $this->setName('load:history');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) : int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->connection->transactional(function () use ($output, $input) {
             $limit = ($input->getOption('verbose') ? 1 : 10000);
-            $this->connection->executeQuery('DELETE FROM judge_career');
+//            $this->connection->executeQuery('DELETE FROM judge_career');
             $inserts = array_merge(
                 $this->prepareInserts('judge_career', $limit, $output),
             );
-            foreach ($inserts as $index => $insert) {
-                $this->connection->executeQuery($insert);
-            }
+//            foreach ($inserts as $index => $insert) {
+//                $this->connection->executeQuery($insert);
+//            }
         });
 
         return 0;
     }
 
-    private function prepareInserts(string $dataset, int $limit, OutputInterface $output) : array
+    private function prepareInserts(string $dataset, int $limit, OutputInterface $output): array
     {
-        $fields  = implode(
+
+        $fields = implode(
             ', ',
             [
                 'judge_id',
@@ -67,141 +64,69 @@ class LoadHistory extends Command
                 'term_type',
             ]
         );
-        $sql     = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
+        $sql    = 'INSERT INTO ' . $dataset . ' (' . $fields . ') VALUES ' . PHP_EOL;
 
         $all           = [];
         $missingCourts = [];
-        $parse         = function ($dataset) use (&$missingCourts, $limit, $sql, $output) : array {
-
-            $eol        = fn($value) => str_replace("\n", ' ', $value);
-            $longSpaces = fn($value) => preg_replace("/\s\s+/", ' ', $value);
-            $allSpaces  = fn($value) => str_replace(' ', '', $value);
-            $rows       = [];
-            $courtName  = null;
-            $counter = 0;
-            foreach (iterateCSV($this->projectDir . '/datasets/courts/history_regions/' . $dataset . '.csv') as $row) {
+        $missingJudges = [];
+        $parse         = function ($path) use (&$missingCourts, &$missingJudges, $limit, $sql, $output): array {
+            $rows      = [];
+            $courtName = null;
+            $counter   = 0;
+            foreach (iterateCSV($path) as $row) {
                 $counter++;
                 if (! array_filter($row)) {
                     continue;
                 }
-                if ($courtName === null) {
-                    $courtName = $row[self::COURT];
+                if (! isset($row[1])) {
+                    $output->writeln('line:' . implode(',', $row) . ' . file' . $path);
+                    continue;
                 }
-
-                if ($courtName && $row[0]) {
-                    $courtName = $row[self::COURT];
-                }
-
                 $courtCode = $this->connection->fetchOne(
-                    'SELECT id FROM court WHERE name = ?',
-                    [$courtName]
+                    'SELECT id FROM court WHERE id = ?',
+                    [$row[self::COURT]]
                 );
                 if (! $courtCode) {
-                    $missingCourts[] = $courtName;
+                    $missingCourts[] = $row[self::COURT];
                     continue;
                 }
-                $courtCode = "'$courtCode'";
-
-                $row[self::FULL_NAME] = $eol($row[self::FULL_NAME]);
-                if (! $row[self::FULL_NAME]) {
+                $rows = [
+                    $courtCode,
+                ];
+                if (empty($row[self::FULL_NAME])) {
+                    $output->writeln('empty judge line:' . implode(',', $row) . ' . file' . $path);
                     continue;
                 }
-                $chunks = explode(' ', $row[self::FULL_NAME]);
-                if (! isset($chunks[2])) {
-                    $output->writeln('Invalid:' . $row[self::FULL_NAME] );
-                    continue;
-                }
-                $judge = $this->connection->fetchAssociative(
+                $judgeId = $this->connection->fetchAssociative(
                     'SELECT * FROM judge WHERE full_name = :fn',
                     ['fn' => $row[self::FULL_NAME]]
                 );
-                if (! $judge) {
-                    $output->writeln('History_database: ' . $row[self::FULL_NAME]);
+                if (! $judgeId) {
+                    $missingJudges[] = $row[self::FULL_NAME];
                     continue;
                 }
+                $rows[] = $judgeId;
 
-                $decreeNumber = null;
-                $timestamp    = null;
-                if (strpos($row[self::UKAZ], '№') !== false) {
-                    $row[self::UKAZ] = preg_replace('|[^0-9№.]|', '', $row[self::UKAZ]);
-                    $chunks          = explode('№', $row[self::UKAZ]);
-                    try {
-                        $timestamp    = "'" . (new DateTime($allSpaces($chunks[0])))->format('Y-m-d') . "'";
-                        $decreeNumber = $allSpaces($chunks[1]);
-                    } catch (Throwable $e) {
-                        $timestamp = 'null';
-                        $output->writeln('Error: ' . $e->getMessage());
-                    }
-                } elseif ($row[self::UKAZ] === '') {
-                    $timestamp    = "'2000-01-01'";
-                    $decreeNumber = null;
-                } else {
-                    $output->writeln('parse_error:' . $row[self::UKAZ]);
-                    continue;
-                }
-                $row[3] = trim($row[3]);
-                $tmp    = [
-                    $judge['id'],
-                    $courtCode,
-                    $timestamp,
-                    '"appointed"',
-                    is_numeric($decreeNumber) ? "'" . $longSpaces($decreeNumber) . "'" : 0,
-                    "'" . $row[self::SET_POSITION] . "'",
-                    "'{$row[3]}'",
-                ];
-                switch ($row[3]) {
-                    case '5 лет':
-                        $tmp[6] = '""';
-                        $tmp[]  = 5;
-                        $tmp[]  = '"years"';
-                        break;
-                    case 'бессрочно':
-                        $tmp[6] = '""';
-                        $tmp[]  = 'NULL';
-                        $tmp[]  = '"indefinitely"';
-                        break;
-                    default:
-                        $tmp[] = 'NULL';
-                        $tmp[] = '"period"';
-                        break;
-                }
-
-                $rows[] = $tmp;
-
-                if ($row[7]) {
-                    $courtCodeReleased = $this->connection->fetchOne(
-                        'SELECT id FROM court WHERE name = ?',
-                        [$row[7]]
-                    );
-                    if (! $courtCodeReleased) {
-                        $output->writeln($dataset . ':' . $row[7] . ':' . $counter);
-                        continue;
-                    }
-                    $rows[] = [
-                        $judge['id'],
-                        "'" . $courtCodeReleased . "'",
-                        $timestamp,
-                        '"released"',
-                        is_numeric($decreeNumber) ? "'" . $longSpaces($decreeNumber) . "'" : 0,
-                        "'{$row[self::SET_POSITION]}'",
-                        "'{$row[9]}'",
-                        'NULL',
-                        '""',
-                    ];
-                }
             }
-
-            return array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
+//            array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
+            return $rows;
         };
-
-        foreach (['07-capital', '06-mogilev', '05-minsk', '04-grodno', '03-gomel', '02-vitebsk', '01-brest', 'super'] as $file) {
+        foreach (glob($this->projectDir . '/datasets/courts/history/*/*.csv') as $file) {
             $all = array_merge($all, $parse($file));
         }
+        $missingJudges = array_unique($missingJudges);
+        $string        = '';
+        $last          = 1504;
+        foreach ($missingJudges as $judge) {
+            $string .= ++$last . ',' . $judge . ',,' . PHP_EOL;
+        }
+        file_put_contents($this->projectDir . '/var/judges.csv', $string . PHP_EOL);
 
+        $data    = 1;
         $removed = (function () use (&$missingCourts, $limit, $sql, $output) {
-            $eol        = fn($value) => str_replace("\n", ' ', $value);
-            $allSpaces  = fn($value) => str_replace(' ', '', $value);
-            $longSpaces = fn($value) => preg_replace("/\s\s+/", ' ', $value);
+            $eol        = fn ($value) => str_replace("\n", ' ', $value);
+            $allSpaces  = fn ($value) => str_replace(' ', '', $value);
+            $longSpaces = fn ($value) => preg_replace("/\s\s+/", ' ', $value);
             $rows       = [];
             foreach (iterateCSV($this->projectDir . '/datasets/courts/history_regions/removed.csv') as $row) {
                 $courtCode = $this->connection->fetchOne(
@@ -267,7 +192,7 @@ class LoadHistory extends Command
                 ];
             }
 
-            return array_map(fn($x) => $sql . '(' . implode(',', $x) . ')', $rows);
+            return array_map(fn ($x) => $sql . '(' . implode(',', $x) . ')', $rows);
         })();
         $all     = array_merge($all, $removed);
 

@@ -25,6 +25,7 @@
         "symfony/monolog-bundle": "^3.5",
         "symfony/security-bundle": "5.0.*",
         "symfony/yaml": "5.0.*",
+        "azjezz/psl": "^1.0",
         "treinetic/imageartist": "^1.0",
         "wapmorgan/morphos": "3.*",
         "symfony/css-selector": "5.0.*",

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Courts;
+namespace App\Courts\Trials;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
@@ -8,7 +8,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class LoadTrialsDissidentBy extends Command
+class LoadFromDissidentBy extends Command
 {
     private Connection $dbal;
 

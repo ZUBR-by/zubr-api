@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Courts;
+namespace App\Courts\Decisions;
 
+use App\Courts\UploadEvent;
 use DateTime;
 use Doctrine\DBAL\Connection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

@@ -7,7 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use function App\iterateCSV;
-use function GuzzleHttp\json_encode;
+use function Psl\Json\encode;
 
 class UpdateJudges extends Command
 {
@@ -22,12 +22,12 @@ class UpdateJudges extends Command
         parent::__construct();
     }
 
-    protected function configure() : void
+    protected function configure(): void
     {
         $this->setName('update:judges');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output) : int
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->connection->transactional(function () use ($output, $input) {
             $tags = [];
@@ -46,7 +46,7 @@ class UpdateJudges extends Command
                             'id'        => $csvId,
                             'full_name' => $fullName,
                             'comment'   => $phone,
-                            'tags'      => \json_encode($tags[$id] ?? []),
+                            'tags'      => encode($tags[$id] ?? []),
                         ]
                     );
                 } else {
@@ -55,7 +55,7 @@ class UpdateJudges extends Command
                         [
                             'full_name' => $fullName,
                             'comment'   => $phone,
-                            'tags'      => \json_encode($tags[$id] ?? []),
+                            'tags'      => encode($tags[$id] ?? []),
                         ],
                         ['id' => $csvId]
                     );
