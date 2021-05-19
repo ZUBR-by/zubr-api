@@ -11,8 +11,8 @@
   register: update
 - debug: var=update.stdout_lines
 
-- name: update history if needed
-  shell: '{{ ansistrano_release_path.stdout }}/bin/console load:history'
-  when: inventory_hostname in groups['data'] and HAS_CHANGE == 'true'
-  register: update
-- debug: var=update.stdout_lines
+#- name: update history if needed
+#  shell: '{{ ansistrano_release_path.stdout }}/bin/console load:history'
+#  when: inventory_hostname in groups['data'] and HAS_CHANGE == 'true'
+#  register: update
+#- debug: var=update.stdout_lines
