@@ -332,6 +332,10 @@ class Decision
                 $result[] = sprintf('конфискация %s %s', (int) $outcome['amount'], $outcome['extra']);
                 continue;
             }
+            if ($outcome['type'] === 'moral_compensation') {
+                $result[] = sprintf('Компенсация за моральный урон: %s %s', (int) $outcome['amount'], $outcome['extra']);
+                continue;
+            }
             if ($outcome['type'] === 'fines_rub') {
                 $result[] = sprintf('%s руб.', (float) $outcome['amount']);
                 continue;
