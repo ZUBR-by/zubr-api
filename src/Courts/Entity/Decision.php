@@ -303,7 +303,7 @@ class Decision
     {
         $result = [];
         foreach ($this->outcome as $outcome) {
-            if (! in_array($outcome['type'], ['arrest', 'fine', 'fines_rub'])) {
+            if (! in_array($outcome['type'], ['arrest', 'fine', 'fines_rub', 'moral_compensation'])) {
                 continue;
             }
             if ($outcome['type'] === 'arrest') {
