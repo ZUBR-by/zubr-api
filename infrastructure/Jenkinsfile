@@ -123,6 +123,7 @@ JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
 GIT_COMMIT=${GIT_COMMIT}
 
 """
+                sh 'rm -rf var/cache/prod'
                 sh 'make compose-composer-ci'
             }
         }
