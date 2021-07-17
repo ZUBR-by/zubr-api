@@ -119,6 +119,9 @@
     "firebase/php-jwt": {
         "version": "v5.2.0"
     },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.5"
+    },
     "google/apiclient": {
         "version": "2.0",
         "recipe": {
@@ -154,12 +157,6 @@
     },
     "laminas/laminas-code": {
         "version": "3.4.1"
-    },
-    "laminas/laminas-eventmanager": {
-        "version": "3.2.1"
-    },
-    "laminas/laminas-zendframework-bridge": {
-        "version": "1.0.4"
     },
     "lcobucci/clock": {
         "version": "2.0.0"
@@ -434,6 +431,9 @@
     "symfony/dependency-injection": {
         "version": "v5.0.7"
     },
+    "symfony/deprecation-contracts": {
+        "version": "v2.4.0"
+    },
     "symfony/doctrine-bridge": {
         "version": "v5.0.7"
     },
@@ -493,16 +493,16 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/http-client": {
+        "version": "v5.0.11"
+    },
+    "symfony/http-client-contracts": {
+        "version": "v2.4.0"
+    },
     "symfony/http-foundation": {
         "version": "v5.0.7"
     },
     "symfony/http-kernel": {
-        "version": "v5.0.7"
-    },
-    "symfony/inflector": {
-        "version": "v5.0.7"
-    },
-    "symfony/mime": {
         "version": "v5.0.7"
     },
     "symfony/monolog-bridge": {
@@ -528,8 +528,11 @@
     "symfony/orm-pack": {
         "version": "v2.0.0"
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.15.0"
+    "symfony/password-hasher": {
+        "version": "v5.3.3"
+    },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.23.0"
     },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.18.0"
@@ -543,6 +546,9 @@
     "symfony/polyfill-php80": {
         "version": "v1.17.0"
     },
+    "symfony/polyfill-php81": {
+        "version": "v1.23.0"
+    },
     "symfony/polyfill-uuid": {
         "version": "v1.17.1"
     },
@@ -554,6 +560,9 @@
     },
     "symfony/proxy-manager-bridge": {
         "version": "v5.0.11"
+    },
+    "symfony/psr-http-message-bridge": {
+        "version": "v2.1.0"
     },
     "symfony/routing": {
         "version": "4.2",
@@ -604,6 +613,9 @@
     },
     "symfony/stopwatch": {
         "version": "v5.0.7"
+    },
+    "symfony/string": {
+        "version": "v5.3.3"
     },
     "symfony/translation-contracts": {
         "version": "v2.0.1"

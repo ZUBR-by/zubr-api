@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.0-fpm
 
 RUN apt-get update \
     && apt-get install -y libpq-dev libonig-dev libgmp-dev libxml2-dev libwebp-dev libjpeg62-turbo-dev libpng-dev libxpm-dev libfreetype6-dev libicu-dev zlib1g-dev libzip-dev libbz2-dev git zip \
