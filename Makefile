@@ -24,7 +24,7 @@ compose-up-ci:
 	COMPOSE_PROJECT_NAME=zubr \
 	docker-compose -f infrastructure/docker-compose.yml \
 	-f infrastructure/docker-compose.dev.yml \
-	up -d
+	up -d --build
 
 compose-down-ci:
 	COMPOSE_PROJECT_NAME=zubr \
